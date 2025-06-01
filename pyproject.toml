@@ -1,0 +1,17 @@
+[project]
+name = "reactive"
+version = "0.1.0"
+description = "Un react en basado en prompt-toolkit"
+readme = "README.md"
+authors = [
+    { name = "xmarlon30x2", email = "xmarlon360x2@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "prompt-toolkit>=3.0.51",
+    "pygments>=2.19.1",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
