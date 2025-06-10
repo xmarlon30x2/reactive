@@ -5,14 +5,24 @@ from ..types import Setter
 
 __all__ = ['use_memo']
 
-def use_memo[V](factory: Setter[V], *deps: Any) -> V:
+def use_memo[V](factory: Setter[V], *dependencies: Any) -> V:
+    """
+    Hook para memoizar valores computacionalmente costosos
+    
+    Args:
+        compute_func: Función que computa el valor
+        dependencies: Lista de dependencias que activan el recálculo
+        
+    Returns:
+        Valor memoizado
+    """
     value, set_value = use_ref(factory) # type: ignore
-    last_deps, set_last_deps = use_ref(deps)
+    last_dependencies, set_last_dependencies = use_ref(dependencies)
 
-    if last_deps != deps:
+    if last_dependencies != dependencies:
         value = factory()
         set_value(value)
-        set_last_deps(deps)
+        set_last_dependencies(dependencies)
 
     return value
 
