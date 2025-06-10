@@ -15,6 +15,7 @@ def Link(
         disable: bool = False,
         left_symbol: str | None = None,
         right_symbol: str | None = None,
+        width: int | Literal['auto'] | None = 'auto',
         left_symbol_disabled: str | None | Literal[False] = None,
         right_symbol_disabled: str | None | Literal[False] = None
     ):
@@ -32,6 +33,7 @@ def Link(
         text=text,
         handler=on_handler,
         disable=disable,
+        width=width,
         left_symbol=left_symbol,
         right_symbol=right_symbol,
         left_symbol_disabled=left_symbol_disabled,

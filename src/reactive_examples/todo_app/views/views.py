@@ -5,7 +5,7 @@ from .read_todo_view import ReadTodoView
 from .todo_not_found import TodoNotFound
 from .about_view import AboutView
 from .home_view import HomeView
-from ..dashboard_view import DashboardView
+from .dashboard_view import DashboardView
 
 
 views = create_views([

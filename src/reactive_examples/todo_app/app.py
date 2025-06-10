@@ -12,8 +12,12 @@ from .views.views import views
 @component
 def TodoApp():
     todos, set_todos = use_state(list[Todo])
-    Provider(
+    
+    def router():
+        return Router(views=views, initial_key='home')
+    
+    return Provider(
         context=todos_context,
         value=TodosState(todos=todos, set_todos=set_todos),
-        children=lambda: Router(views=views, initial_key='home')
+        children=router
     )

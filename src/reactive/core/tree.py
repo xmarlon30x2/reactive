@@ -57,9 +57,11 @@ class Tree:
             self._bases_by_keys.pop(key, None)
             if key in self._active_keys:
                 self._active_keys.remove(key)
-
-        base_index = self._bases_by_index.index(component)
-        if base_index != -1:
+        try:
+            base_index = self._bases_by_index.index(component)
+        except ValueError:
+            pass
+        else:
             self._bases_by_index.pop(base_index)
             
             if self._active_indexs > base_index:
@@ -76,6 +78,9 @@ class Tree:
 
         finally:
             self._parent.reset(token)
+
+    def get_current_component_or_none(self) -> 'Optional[Component]':
+        return self._parent.get()
 
     def get_current_component(self) -> 'Component':
         parent = self._parent.get()
@@ -204,5 +209,7 @@ class Tree:
             if component.has_key_bindings
         ))
         
-        if list_key_bindings:
-            return merge_key_bindings(list_key_bindings)
+        if not list_key_bindings:
+            return None
+        
+        return merge_key_bindings(list_key_bindings)

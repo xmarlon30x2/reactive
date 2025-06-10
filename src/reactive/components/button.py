@@ -31,18 +31,23 @@ def get_symbol(
         return normal
     return default_normal
 
-def calculate_width(width: Optional[int | Literal['auto']], text_lenght: int):
+def calculate_width(
+        width: Optional[int | Literal['auto']],
+        text_lenght: int,
+        left_width: int,
+        right_width: int,
+    ):
     if width is None:
         return min(MAX_SIZE, text_lenght)
     if width == 'auto':
-        return text_lenght
+        return text_lenght + left_width + right_width
     return width
 
 @component
 def Button(
         text: Optional[str] = None,
         handler: Optional[Callable[[], Any]] = None,
-        width: Optional[Union[int, Literal['auto']]] = None,
+        width: Optional[Union[int, Literal['auto']]] = 'auto',
         disable: bool = False,
         left_symbol: Optional[str] = None,
         left_symbol_disabled: Optional[Union[str, Literal[False]]] = None,
@@ -67,7 +72,7 @@ def Button(
     return _Button(
         text=text,
         handler=handler if not disable else None,
-        width=calculate_width(width, len(text)),
+        width=calculate_width(width, len(text), len(left_symbol), len(right_symbol)),
         left_symbol=left_symbol,
         right_symbol=right_symbol
     )

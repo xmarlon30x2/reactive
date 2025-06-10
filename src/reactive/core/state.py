@@ -9,22 +9,21 @@ __all__ = ['State']
 
 
 class State:
-    def __init__(self, slices: Optional[list[Any]] = None, index: Optional[int] = None):
-        self._index = index or 0
-        self._slices = slices or []
+    _slices: dict[int, Any]
 
-        self._validate_index(index=self._index)
+    def __init__(self):
+        self._slices = {}
+        self._active_indexs = -1
 
     def get_slice[S](self,
                         index: int,
                         default: Optional[S] = None,
                         default_factory: 'Optional[Setter[S]]' = None
                     ) -> Any:
-        lenght_slices = self._validate_index(index=index)
-
-        if not index < lenght_slices:
+        if not index in self._slices:
             new_slice = default_factory() if default_factory else default
-            self._slices.append(new_slice)
+            self._slices[index] = new_slice
+            return new_slice
 
         return self._slices[index]
 
@@ -33,24 +32,18 @@ class State:
                     value: Optional[Any] = None, 
                     value_factory: 'Optional[Union[Setter[Any], Computer[Any]]]' = None
                 ):
-        self._validate_index(index=index)
-        current_slice = self._slices[index]
+        current_slice = self._slices.get(index, None)
         self._slices[index] = value if not value_factory else factory_value(current_slice, value_factory)
 
     def get_index(self) -> int:
-        return self._index
+        return self._active_indexs
 
-    def increment_index(self) -> None:
-        self._index += 1
+    def active_hook(self) -> None:
+        self._active_indexs += 1
 
     def cleanup(self) -> None:
-        if self._index:
-            self._slices = self._slices[:self._index]
-            self._index = 0
-
-    def _validate_index(self, index: int) -> int:
-        lenght_slices = len(self._slices)
-        if index < 0 or index > lenght_slices + 1:
-            raise IndexError(f'Indice fuera de rango: {index}')
-        return lenght_slices
+        for index in list(self._slices.keys()):
+            if not index <= self._active_indexs:
+                self._slices.pop(index)
+        self._active_indexs = -1
 

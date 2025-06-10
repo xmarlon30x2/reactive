@@ -6,4 +6,4 @@ from ..todo import Todo
 @component
 def TodoItem(todo: Todo) -> Node:
     text = todo.text if len(todo.text) < 20 else todo.text[:20]+'...'
-    return Link(text=text, to='read-todo', params={'id': todo.id})
+    return Link(text=text, to='todo-read', params={'id': todo.id})

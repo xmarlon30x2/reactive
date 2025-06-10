@@ -16,24 +16,23 @@ def _ResolveView(views: 'Views'):
     children: Optional[Callable[[], 'AnyContainer']] = None
     
     for view in reversed(views.get_trace(key)):
-        view_key = view['key']
-        
         if is_view(view):
             
             if children:
-                raise RuntimeError(f'No se puede poner dos vistas anidadas: {view_key}')
+                raise RuntimeError(f'No se puede poner dos vistas anidadas: {key}')
 
             component = view['component']
-            children = lambda: component(view_key)
+            children = lambda: component(key)
         
         if is_layout_view(view):
-            
+            layout_key = view['key']
+
             if not children:
-                raise RuntimeError(f'No se puede poner un layout sin una vista: {view_key}')
-            
+                raise RuntimeError(f'No se puede poner un layout sin una vista: {layout_key}')
+
             layout = view['layout']
             layout_children = children
-            children = lambda: layout(view_key, layout_children)
+            children = lambda: layout(layout_key, layout_children)
 
     if not children:
         return

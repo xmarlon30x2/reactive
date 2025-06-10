@@ -37,8 +37,8 @@ class Relations:
     @property
     def childrens(self) -> Iterable['Component']:
         return chain(
-            self._childrens_by_index,
-            self._childrens_by_key.values()
+            self._childrens_by_index.copy(),
+            list(self._childrens_by_key.values())
         )
 
     def cleanup(self, tree: 'Tree') -> None:
@@ -61,11 +61,17 @@ class Relations:
         if child.props.key in self._childrens_by_key:
             self._childrens_by_key.pop(child.props.key)
         
-        child_index = self._childrens_by_index.index(child)
-        self._childrens_by_index.remove(child)
+        try:
+            child_index = self._childrens_by_index.index(child)
         
-        if self._active_indexs > child_index:
-            self._active_indexs -= 1
+        except ValueError:
+            pass
+        
+        else:
+            self._childrens_by_index.pop(child_index)
+    
+            if self._active_indexs > child_index:
+                self._active_indexs -= 1
 
     def add_child(self, child: 'Component'):
         key = child.props.key

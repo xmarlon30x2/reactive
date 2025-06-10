@@ -16,7 +16,7 @@ def is_view(obj: LayoutView | View) -> TypeGuard[View]:
     return set(obj.keys()) == set(('key', 'component'))
 
 def is_layout_view(obj: LayoutView | View) -> TypeGuard[LayoutView]:
-    return set(obj.keys()) == set(('key', 'component', 'layout'))
+    return set(obj.keys()) == set(('key', 'views', 'layout'))
 
 class Views:
     def __init__(

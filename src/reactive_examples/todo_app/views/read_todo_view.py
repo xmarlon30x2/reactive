@@ -26,5 +26,5 @@ def ReadTodoView() -> Node:
             Label(text=todo.text)
         ),
         Link(text='Edit', to='todo-edit', params={'id': id}),
-        Link(text='Back', to=-1)
+        Link(text='Back', to='todo-history')
     ]

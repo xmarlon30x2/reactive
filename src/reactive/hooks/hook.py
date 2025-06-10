@@ -13,13 +13,7 @@ def hook(func: Callable[P, R]) -> Callable[P, R]:
     def decorator(*args: P.args, **kwargs: P.kwargs) -> Any:
         tree = get_tree()
         component = tree.get_current_component()
-        
-        try:
-            result = func(*args, **kwargs)
-        
-        finally:
-            component.state.increment_index()
-
-        return result
+        component.state.active_hook()
+        return func(*args, **kwargs)
 
     return decorator

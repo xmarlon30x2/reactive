@@ -1,4 +1,4 @@
-from reactive import Button, component, use_effect, use_navigation
+from reactive import Link, component, use_effect, use_navigation
 from reactive.types import Node
 from prompt_toolkit.widgets import TextArea
 from ..hooks.use_todos import use_todos
@@ -35,8 +35,10 @@ def EditTodoView() -> Node:
 
     return [
         text_area,
-        Button(
+        Link(
             text='Save',
-            handler=handler_save
+            to='todo-read',
+            handler=handler_save,
+            params={'id': todo.id}
         )
     ]
