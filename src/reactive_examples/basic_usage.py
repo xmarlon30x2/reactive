@@ -32,8 +32,12 @@ def Counter():
     )
 
 # Punto de entrada de la aplicación
-root, kb = create_root(Counter)
-run_app(root, key_bindings=[
-    kb,
-    load_focus_tab()
-])
+def main():
+    root, kb = create_root(Counter)
+    run_app(
+        root,
+        key_bindings=[kb,load_focus_tab()]
+    )
+
+if __name__ == '__main__':
+    main()

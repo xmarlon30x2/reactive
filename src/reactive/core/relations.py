@@ -17,7 +17,7 @@ class Relations:
     _childrens_by_key: Dict[str, 'Component'] = field(default_factory=dict[str, Any], init=False)
     _active_keys: Set[str] = field(default_factory=set[str], init=False)
     _active_indexs: int = field(default=0, init=False)
-
+    _dirty: Optional[bool] = None
     # def change_parent(self, new_parent: 'Component') -> None:
     #     if self._parent:
     #         self._parent.relations.remove_child(self._component)
@@ -27,6 +27,13 @@ class Relations:
     def parent(self) -> 'Optional[Component]':
         return self._parent
 
+    @property
+    def dirty(self) -> bool:    
+        for children in self.childrens:
+            if children.dirty:
+                return True
+        return False
+        
     @property
     def childrens(self) -> Iterable['Component']:
         return chain(

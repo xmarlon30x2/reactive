@@ -42,14 +42,21 @@ class Component:
     _dirty: bool = field(init=False, default=False)
     _container: Optional['AnyContainer'] = field(init=False, default=None)
     _key_bindings: Optional['KeyBindings'] = field(init=False, default=None)
+    
+    def __hash__(self):
+        _id = id(self)
+        return hash(_id)
 
     def __post_init__(self):
         self.relations = Relations(self)
 
     @property
     def dirty(self):
-        return self._dirty or self.props.dirty
-    
+        component_dirty = self._dirty
+        props_dirty = self.props.dirty
+        relations_dirty = self.relations.dirty
+        return component_dirty or props_dirty or relations_dirty
+
     @property
     def key_bindings(self) -> 'KeyBindings':
         if not self._key_bindings:

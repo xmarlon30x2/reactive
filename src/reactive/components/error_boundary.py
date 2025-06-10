@@ -6,6 +6,8 @@ from ..components.component import component
 if TYPE_CHECKING:
     from prompt_toolkit.layout.containers import AnyContainer
 
+__all__ = ['ErrorBoundary']
+
 initial_value: Optional[Exception] = None
 
 @component

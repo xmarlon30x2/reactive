@@ -6,6 +6,8 @@ from ..core.current import get_tree
 P = ParamSpec('P')
 R = TypeVar('R')
 
+__all__ = ['hook']
+
 def hook(func: Callable[P, R]) -> Callable[P, R]:
     @wraps(func)
     def decorator(*args: P.args, **kwargs: P.kwargs) -> Any:

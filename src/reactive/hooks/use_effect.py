@@ -8,6 +8,8 @@ if TYPE_CHECKING:
     type _StateType = tuple[_Cleanup, _Deps]
     type _Effect = Callable[[], Optional[_Cleanup]]
 
+__all__ = ['use_effect']
+
 @hook
 def use_effect( 
             *dependencies: Any) -> Callable[['_Effect'], None]:

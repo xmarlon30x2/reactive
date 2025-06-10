@@ -12,6 +12,8 @@ from pygments.styles.onedark import OneDarkStyle # type: ignore
 
 from .component import component
 
+__all__ = ['DefaultFallback']
+
 style = style_from_pygments_cls(OneDarkStyle)
 python_traceback_lexer = PythonTracebackLexer()
 
