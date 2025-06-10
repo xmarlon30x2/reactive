@@ -1,19 +1,12 @@
-from typing import Optional
+from typing import List
 from unittest import TestCase
-
-from src.reactive.components.component import component
-from src.reactive.test_utils.test_harness import TestHarness, mount
+from unittest.mock import MagicMock
+from prompt_toolkit.widgets import Button
+from src.reactive import component
+from src.reactive.types import Node
+from src.reactive.test_utils.test_harness import mount
 
 class TestComponentDecorator(TestCase):
-    harness: Optional['TestHarness[None]'] = None
-
-    def setup(self):
-        self.harness = None
-
-    def teardown(self):
-        if self.harness:
-            self.harness.clear_buffers()
-
     def test_should_render_text(self):        
         text = 'This is a component'
         
@@ -21,8 +14,40 @@ class TestComponentDecorator(TestCase):
         def MyComponent():
             return text
 
-        with mount('my_component.screen', MyComponent) as harness:
+        with mount('component.screen', MyComponent) as harness:
             harness.step()
             
             self.assertIn(text, harness.get_text())
 
+    def test_should_render_container(self):
+        text = 'This is a button'
+
+        @component
+        def MyComponent():
+            return Button(text)
+
+        with mount('component.screen', MyComponent) as harness:
+            harness.step()
+            
+            self.assertIn(text, harness.get_text())
+
+    def test_should_render_array_of_node(self):
+        text = 'This is a text'
+        label_text = 'This is a label'
+
+        @component
+        def MyComponent() -> List['Node']:
+            return [
+                text,
+                Button(label_text)
+            ]
+
+        with mount('component.screen', MyComponent) as harness:
+            harness.step()
+
+            screen = harness.get_text()
+            text_index = screen.find(text)
+            label_text_index = screen.find(label_text)
+            self.assertNotEqual(text_index, -1)
+            self.assertNotEqual(label_text_index, -1)
+            self.assertGreaterEqual(label_text_index, text_index + len(text))

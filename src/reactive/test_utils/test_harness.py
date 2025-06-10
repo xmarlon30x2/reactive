@@ -33,7 +33,8 @@ class _AppThread[R](Thread):
 
     def terminate(self):
         self.app.exit()
-        self.join()
+        if self.is_alive():
+            self.join()
         return self.value
 
     @property
@@ -58,6 +59,7 @@ class TestHarness(Generic[V]):
     def __init__(self, output_filename: str, create_app: _CreateApp[V], tree: 'Tree'):
         self._create_app = create_app
         self.tree = tree
+        self._input_buffer = ''
         self.output_filename = output_filename
 
     @property
@@ -104,12 +106,15 @@ class TestHarness(Generic[V]):
         Limpia el contendio acumulado en el buffer de salida y entrada
         """
         output_path = Path(self.output_filename)
-        output_path.unlink(True)
+        try:
+            output_path.unlink(True)
+        except PermissionError:
+            pass
         self._input_buffer = ''
 
-    def push_keys(self, text: str) -> None:
+    def send_text(self, text: str) -> None:
         """
-        Envia una secuencia de teclas a la aplicacion
+        Envia un texto al input
         """
         self._input_buffer += text
 
@@ -117,6 +122,14 @@ class TestHarness(Generic[V]):
         return self
     
     def __exit__(self, *args: Any):
+        self.close()
+
+    def __del__(self):
+        self.close()
+    
+    def close(self):
+        if self._runner and self.status == 'running':
+            self._runner.terminate()
         self.clear_buffers()
 
 def mount(
