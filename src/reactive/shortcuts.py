@@ -16,9 +16,10 @@ __all__ = ['run_app', 'create_root']
 def create_root(
         component_func: Callable[[], 'AnyContainer'],
         fallback: Union[Optional[Callable[[str, Exception], 'AnyContainer']], Literal[False]] = False,
-        recover_focus_key: Union[Optional[str], Literal[False]] = None
+        recover_focus_key: Union[Optional[str], Literal[False]] = None,
+        tree_instance: Optional['Tree'] = None
     ) -> Tuple['AnyContainer', 'KeyBindingsBase']:
-    tree = Tree()
+    tree = tree_instance if tree_instance is not None else Tree()
 
     if fallback != False:
         root_func = lambda: ErrorBoundary(
@@ -30,6 +31,7 @@ def create_root(
     
     # Contenedor dinámico
     def get_container():
+        nonlocal tree
         with open_tree(tree):
             container = root_func()
             tree.flip()
