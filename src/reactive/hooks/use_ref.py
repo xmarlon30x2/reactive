@@ -8,10 +8,10 @@ if TYPE_CHECKING:
 
 __all__ = ['use_ref']
 
-type StateSetter[S] = Union['Setter[S]', 'Computer[S]', S]
+type RefSetter[S] = Union['Setter[S]', 'Computer[S]', S]
 
 @hook
-def use_ref[S](initial_value: Optional[Union[S, 'Setter[S]']] = None) -> Tuple[S, Callable[[StateSetter[S]], None]]:
+def use_ref[S](initial_value: Optional[Union['Setter[S]', S]] = None) -> Tuple[S, Callable[[RefSetter[S]], None]]:
     """
     Hook para crear referencias a valores persistentes que no renderizan el componente
     
