@@ -4,7 +4,7 @@ from prompt_toolkit.layout.containers import AnyContainer
 from ..hooks.use_navigation import use_navigation
 from ..hooks.use_state import use_state
 from ..router.context import RouterContextState, router_context
-from ..router.views import ViewDef, ViewLayoutDef, Views
+from ..router.views import is_view, is_layout_view, Views
 from .provider import Provider
 from .component import component
 
@@ -13,32 +13,32 @@ __all__ = ['Router']
 @component
 def _ResolveView(views: 'Views'):
     key, *_ = use_navigation()
-    last_view_def: Optional[Callable[[], 'AnyContainer']] = None
+    children: Optional[Callable[[], 'AnyContainer']] = None
     
-    for view_def in reversed(views.get_trace(key)):
-        if isinstance(view_def, ViewDef):
-            if last_view_def:
-                raise RuntimeError(f'No se puede poner dos vistas anidadas: {view_def.key}')
-            
-            view_component = view_def.component
-            view_key = view_def.key
-            last_view_def = lambda: view_component(view_key)
+    for view in reversed(views.get_trace(key)):
+        view_key = view['key']
         
-        if isinstance(view_def, ViewLayoutDef):
-            if not last_view_def:
-                raise RuntimeError(f'No se puede poner un layout sin una vista: {view_def.key}')
-            layout_component = view_def.component
-            layout_key = view_def.key
-            child_component = last_view_def
-            last_view_def = lambda: layout_component(
-                layout_key,
-                child_component
-            )
+        if is_view(view):
+            
+            if children:
+                raise RuntimeError(f'No se puede poner dos vistas anidadas: {view_key}')
 
-    if not last_view_def:
+            component = view['component']
+            children = lambda: component(view_key)
+        
+        if is_layout_view(view):
+            
+            if not children:
+                raise RuntimeError(f'No se puede poner un layout sin una vista: {view_key}')
+            
+            layout = view['layout']
+            layout_children = children
+            children = lambda: layout(view_key, layout_children)
+
+    if not children:
         return
     
-    return last_view_def()
+    return children()
 
 @component
 def Router(

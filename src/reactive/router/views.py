@@ -1,48 +1,51 @@
-from dataclasses import dataclass
-from typing import Callable, Optional
+from typing import Callable, Optional, TypeGuard, TypedDict
 from prompt_toolkit.layout.containers import AnyContainer
 
-__all__ = ['ViewDef', 'ViewLayoutDef', 'ViewsDefs', 'create_views']
+__all__ = ['create_views']
 
-@dataclass
-class ViewDef:
+class View(TypedDict):
     key: str
-    component: Callable[[str], 'AnyContainer'] # (key) -> AnyContainer
+    component: Callable[[str], 'AnyContainer']
 
-@dataclass
-class ViewLayoutDef:
+class LayoutView(TypedDict):
     key: str
-    component: Callable[[str, Callable[[], 'AnyContainer']], 'AnyContainer'] # (key, component_func) -> AnyContainer
-    views_defs: 'ViewsDefs'
+    layout: Callable[[str, Callable[[], 'AnyContainer']], 'AnyContainer']
+    views: list['LayoutView | View']
 
-type ViewsDefs = list[ViewLayoutDef | ViewDef]
+def is_view(obj: LayoutView | View) -> TypeGuard[View]:
+    return set(obj.keys()) == set(('key', 'component'))
+
+def is_layout_view(obj: LayoutView | View) -> TypeGuard[LayoutView]:
+    return set(obj.keys()) == set(('key', 'component', 'layout'))
 
 class Views:
     def __init__(
             self,
-            views_defs: 'ViewsDefs',
+            views: list['View | LayoutView'],
             default_component: Optional[Callable[[str], 'AnyContainer']] = None
         ):
-        self.views_defs = views_defs
+        self.views = views
         self.default_component = default_component
 
-    def get_trace(self, key: str) -> tuple['ViewLayoutDef | ViewDef', ...]:
-        def join(views_defs: 'ViewsDefs') -> Optional[tuple['ViewLayoutDef | ViewDef', ...]]:
-            for view_def in views_defs:
-                if isinstance(view_def, ViewDef) and view_def.key == key:
-                    return (view_def, )
+    def get_trace(self, key: str) -> tuple['View | LayoutView', ...]:
+        def join(views: list['View | LayoutView']) -> Optional[tuple['View | LayoutView', ...]]:
+            for view in views:
+                view_key = view['key']
                 
-                if isinstance(view_def, ViewLayoutDef):
-                    trace = join(views_defs=view_def.views_defs)
+                if is_view(view) and view_key == key:
+                    return (view, )
+                
+                if is_layout_view(view):
+                    trace = join(views=view['views'])
                     if trace:
-                        return (view_def, *trace)
+                        return (view, ) + trace
             
             return None
 
-        trace = join(views_defs=self.views_defs)
+        trace = join(views=self.views)
         
         if not trace and self.default_component:
-            return (ViewDef(key=key, component=self.default_component), )
+            return ({ 'key': key, 'component': self.default_component }, )
 
         if not trace:
             raise ValueError(f'No se ha encontrado una vista con la key: {key}')
@@ -50,10 +53,11 @@ class Views:
         return trace
 
 def create_views(
-        views_defs: 'ViewsDefs',
+        views_defs: list['View | LayoutView'],
         default_component: Optional[Callable[[str], 'AnyContainer']] = None
     ) -> 'Views':
+    
     return Views(
-        views_defs=views_defs,
+        views=views_defs,
         default_component=default_component
     )
