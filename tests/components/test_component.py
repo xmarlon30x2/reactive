@@ -1,6 +1,5 @@
 from typing import List
 from unittest import TestCase
-from unittest.mock import MagicMock
 from prompt_toolkit.widgets import Button
 from src.reactive import component
 from src.reactive.types import Node

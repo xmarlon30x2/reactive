@@ -5,3 +5,4 @@ from .default_fallback import *
 from .error_boundary import *
 from .provider import *
 from .proxy import *
+from .router import *
