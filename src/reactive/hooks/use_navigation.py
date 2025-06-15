@@ -8,14 +8,25 @@ __all__ = ['use_navigation']
 
 class Navigation(NamedTuple):
     key: str
+    """Key de la vista actual"""
     params: dict[str, Any]
+    """Parametros"""
     link: Callable[[str, Optional[dict[str, Any]]], None]
     to: Callable[[int], None]
+    """Permite desplazarse por el historial"""
     has_next: bool
+    """Si tiene una ruta siguiente en el historial"""
     has_previous: bool
+    """Si tiene una ruta anterior en el historial"""
 
 @hook
 def use_navigation() -> Navigation:
+    """
+    Returns:
+        NamedTuple(Navigation):
+            name: Key de la vista actual.
+            params: Parametros de la vista actual.
+    """
     router_state = use_context(router_context)
     
     if not router_state:

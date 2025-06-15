@@ -1,6 +1,7 @@
 from typing import Any, Callable, Optional
 from prompt_toolkit.layout.containers import AnyContainer
-from ..hooks.use_context import use_context
+
+from ..hooks.use_navigation import use_navigation
 from ..hooks.use_state import use_state
 from ..router.context import RouterContextState, router_context
 from ..router.views import ViewDef, ViewLayoutDef, Views
@@ -11,8 +12,7 @@ __all__ = ['Router']
 
 @component
 def _ResolveView(views: 'Views'):
-    router_state = use_context(router_context)
-    router_state.history_index
+    key, *_ = use_navigation()
     last_view_def: Optional[Callable[[], 'AnyContainer']] = None
     
     for view_def in reversed(views.get_trace(key)):
