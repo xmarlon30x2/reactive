@@ -5,6 +5,7 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.containers import DynamicContainer, AnyContainer, HSplit
 from prompt_toolkit.key_binding.key_bindings import DynamicKeyBindings, KeyBindingsBase, merge_key_bindings
 
+from .constants import DEFAULT_REFRESH_INTERVAL
 from .key_bildings.focus import load_recovery_focus
 from .components.default_fallback import DefaultFallback
 from .components.error_boundary import ErrorBoundary
@@ -49,7 +50,7 @@ def create_root(
 def run_app(*root_containers: 'AnyContainer', 
            key_bindings: Optional['KeyBindingsBase' | List['KeyBindingsBase']] = None, 
            full_screen: bool = True, 
-           refresh_interval: float = 0.1,
+           refresh_interval: Optional[float] = None,
            mouse_support: bool = True
         ) -> None:
     # Combinar contenedores en un layout
@@ -60,7 +61,7 @@ def run_app(*root_containers: 'AnyContainer',
         layout=layout,
         full_screen=full_screen,
         key_bindings=key_bindings,
-        refresh_interval=refresh_interval,
+        refresh_interval=refresh_interval or DEFAULT_REFRESH_INTERVAL,
         mouse_support=mouse_support
     )
     run(app.run_async())

@@ -1,15 +1,13 @@
+import sys
 from contextlib import contextmanager
 from os import environ
-import sys
 from typing import Optional
 
 from ..core.tree import Tree
-
 from ..core.component import Component
-
 from ..core.current import get_tree
 
-__all__ = ['args', 'env_vars']
+__all__ = ['args', 'env_vars', 'print_tree', 'print_component']
 
 @contextmanager
 def args(*argv: str):
@@ -38,12 +36,12 @@ def env_vars(**kwargs: str):
             else:
                 environ[key] = value
 
-def format_level(ident: int):
+def _format_level(ident: int):
     return '    ' * ident
 
 def print_tree(tree: Optional[Tree] = None, level: int = 0):
     tree = tree or get_tree()
-    print(f'{format_level(level)}Tree')
+    print(f'{_format_level(level)}Tree')
     for index, base in enumerate(tree.bases):
         print_component(tree=tree, component=base, level=level, index=index)
 
@@ -53,6 +51,6 @@ def print_component(tree: Tree, component: 'Component', index: Optional[int] = N
     id_string = f'({component.props.id})' if component.props.id else ''
     dirty_string = '*' if component.dirty else ''
     print(
-        f'{format_level(level)}{rel_string}{component.name}{id_string}{dirty_string}{current_string}')
+        f'{_format_level(level)}{rel_string}{component.name}{id_string}{dirty_string}{current_string}')
     for children_index, children in enumerate(component.relations.childrens):
         print_component(tree=tree, component=children, level=level+1, index=children_index)

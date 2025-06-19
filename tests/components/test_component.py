@@ -3,7 +3,7 @@ from unittest import TestCase
 from prompt_toolkit.widgets import Button
 from src.reactive import component
 from src.reactive.types import Node
-from src.reactive.test_utils.test_harness import mount
+from reactive.test_utils.mount import mount
 
 class TestComponentDecorator(TestCase):
     def test_should_render_text(self):        

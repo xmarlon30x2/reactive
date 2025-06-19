@@ -10,6 +10,7 @@ requires-python = ">=3.13"
 dependencies = [
     "prompt-toolkit>=3.0.51",
     "pygments>=2.19.1",
+    "pyte>=0.8.2",
 ]
 
 [build-system]

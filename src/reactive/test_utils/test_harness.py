@@ -1,122 +1,111 @@
-from pathlib import Path
-from threading import Thread
+from threading import Condition, Thread
 from time import sleep
-from typing import Any, Callable, Generic, Literal, Optional, TYPE_CHECKING, Self, TypeVar
-from prompt_toolkit.output import create_output, Output
-from prompt_toolkit.input import create_pipe_input, Input
-from prompt_toolkit.application import Application
-from prompt_toolkit.layout import Layout
-from prompt_toolkit.key_binding import merge_key_bindings, KeyBindingsBase
+from typing import Any, Callable, TYPE_CHECKING, Literal, Self, overload
+from prompt_toolkit.input import create_pipe_input, Input, PipeInput
+from asyncio import run
 
-from ..core.tree import Tree
-from ..shortcuts import create_root
+from .expect.expect import Expect
+from .output import TerminalOutput
 
 if TYPE_CHECKING:
-    from prompt_toolkit.layout.containers import AnyContainer
+    from prompt_toolkit.output import Output
+    from prompt_toolkit.application import Application
+    from ..core.tree import Tree
+    type _Create[R] = Callable[['TestHarness[R]', Input, Output], tuple[Application[R], Tree]]
 
-V = TypeVar('V')
+__all__ = ['TestHarness']
 
-class _AppThread[R](Thread):
-    _value: R
+class _Flag:
+    def __init__(self):
+        self.locked = False
+        self.condition = Condition()
 
-    def __init__(self, app: 'Application[R]'):
-        self.app = app
-        self._end = False
-        super().__init__(daemon=True, target=self.target)
+    def lock(self):
+        with self.condition:
+            self.locked = True
 
-    def target(self):
-        self._end = False
-        try:
-            self._value = self.app.run()
-        finally:
-            self._end = True
+    def unlock(self):
+        with self.condition:
+            self.locked = False
+            self.condition.notify_all()
 
-    def terminate(self):
-        self.app.exit()
-        if self.is_alive():
-            self.join()
-        return self.value
+    def wait(self):
+        with self.condition:
+            self.condition.wait_for(lambda: not self.locked)
 
-    @property
-    def value(self):
-        if not self.end:
-            raise RuntimeError('No se ha establecido un valor')
-        return self._value
+class TestHarness[R]:
+    def __init__(self, create: '_Create[R]'):
+        self._create_app = create
+        self._finished = False
+        self._flag_start = _Flag()
+        self._flag_end = _Flag()
+        self._build_run = _Flag()
+        
+        self._thread = Thread(target=self._build)
+        self._build_run.lock()
+        self._thread.start()
+        self._build_run.wait()
 
-    @property
-    def end(self) -> bool:
-        return self._end and not self.is_alive()
+    def _before(self, app: Any):
+        self._flag_start.wait()
+        self._output.erase_screen()
 
-type _CreateApp[S] = Callable[[Input, Output, float], Application[S]]
-
-class TestHarness(Generic[V]):
-    output_filename: str
-    tree: 'Tree'
-    _input_buffer: str
-    _create_app: _CreateApp[V]
-    _runner: Optional[_AppThread[V]] = None
-
-    def __init__(self, output_filename: str, create_app: _CreateApp[V], tree: 'Tree'):
-        self._create_app = create_app
-        self.tree = tree
-        self._input_buffer = ''
-        self.output_filename = output_filename
+    def _after(self, app: Any):
+        self._flag_end.unlock()
 
     @property
-    def return_value(self) -> V:
-        if not self._runner:
-            raise RuntimeError('No se ejecutado la aplicacion')
-        return self._runner.value
-
-    @property
-    def status(self) -> Literal['running', 'pause']:
-        return 'pause' if self._runner and self._runner.end else 'running'
-
-    def step(
-            self,
-            timeout: Optional[float] = None,
-            refresh_interval: Optional[float] = None
-        ) -> None:        
-        refresh_interval = refresh_interval or 0.1
-        timeout = timeout or refresh_interval
-
-        with open(self.output_filename, 'w') as file_output:
-            with create_pipe_input() as input:
-                output = create_output(file_output)
-                input.send_text(self._input_buffer)
-                self._input_buffer = ''
-                app = self._create_app(input, output, refresh_interval)
-                self._runner = _AppThread(app=app)
-                self._runner.start()
-                sleep(timeout)
-                self._runner.terminate()
+    def input(self) -> 'PipeInput':
+        return self._input
     
-    def get_text(self) -> str:
-        """
-        Devuelve todo lo que se ha renderizado incluyendo el codigo ANSI
-        """
-        try:
-            with open(self.output_filename, 'r') as file_output:
-                return file_output.read()
-        except FileNotFoundError:
-            return ''
+    def expect(self) -> 'Expect':
+        terminal = self._output.capture()
+        return Expect(_terminal=terminal)
 
-    def clear_buffers(self) -> None:
-        """
-        Limpia el contendio acumulado en el buffer de salida y entrada
-        """
-        output_path = Path(self.output_filename)
-        try:
-            output_path.unlink(True)
-        except PermissionError:
-            pass
-        self._input_buffer = ''
+    def get_screen(self) -> str:
+        return self.expect().screen
 
-    def send_text(self, text: str) -> None:
-        """
-        Envia un texto al input
-        """
-        self._input_buffer += text
+    @property
+    def is_finished(self) -> bool:
+        return self._finished
+
+    def _build(self):
+        self._output = TerminalOutput()
+        with create_pipe_input() as input:
+            self._input = input
+            self._app, self.tree = self._create_app(self, self._input, self._output)
+            self._flag_start.lock()
+            self._app.before_render.add_handler(self._before)
+            self._app.after_render.add_handler(self._after)
+            self._build_run.unlock()
+            run(self._app.run_async())
+
+    def close(self):
+        self._finished = True
+        if self._app.is_running:
+            self._app.exit()
+        self._flag_start.unlock()
+        if self._thread.is_alive():
+            self._thread.join()
+
+    @overload
+    def step(self, *, expect: Literal[False] = False, wait: float = 0.1, epochs: int = 1) -> None: ...
+    @overload
+    def step(self, *, expect: Literal[True], wait: float = 0.1, epochs: int = 1) -> 'Expect': ...
+
+    def step(self, *, expect: bool = False, wait: float = 0.1, epochs: int = 1):
+        assert epochs >= 1
+
+        for _ in range(epochs):
+            self._flag_end.lock()
+            self._flag_start.unlock()
+            self._flag_end.wait()
+            self._flag_start.lock()
+
+        sleep(wait)
+
+        if expect:
+            return self.expect()
+        return
 
     def __enter__(self) -> Self:
         return self
@@ -124,30 +113,6 @@ class TestHarness(Generic[V]):
     def __exit__(self, *args: Any):
         self.close()
 
-    def __del__(self):
-        self.close()
-    
-    def close(self):
-        if self._runner and self.status == 'running':
-            self._runner.terminate()
-        self.clear_buffers()
+    # def __del__(self):
+    #     self.close()
 
-def mount(
-        output_filename: str,
-        component_func: Callable[[], 'AnyContainer'],
-        key_bindings: Optional['KeyBindingsBase'] = None
-        ):
-    tree = Tree()
-    
-    root, kb = create_root(component_func, tree_instance=tree)
-    key_bindings = merge_key_bindings([kb, key_bindings]) if key_bindings else kb
-
-    def create_app(input: Input, output: Output, refresh_interval: float):
-        return Application[Any](
-            layout=Layout(root),
-            input=input,
-            output=output,
-            refresh_interval=refresh_interval,
-            key_bindings=key_bindings
-        )
-    return TestHarness(output_filename, create_app=create_app, tree=tree)
