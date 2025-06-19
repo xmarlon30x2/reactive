@@ -9,13 +9,14 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": false
         },
         {
             "name": "Python Debugger: Module",
             "type": "debugpy",
             "request": "launch",
-            "module": "src.reactive_examples.todo_app"
+            "module": "test.test_utils.test_mount"
         }
     ]
 }
