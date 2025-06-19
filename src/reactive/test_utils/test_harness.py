@@ -95,7 +95,7 @@ class TestHarness[R]:
     def step(self, *, expect: bool = False, wait: float = 0.1, epochs: int = 1):
         assert epochs >= 1
 
-        for epoch in range(epochs):
+        for _ in range(epochs):
             self._flag_end.lock()
             self._flag_start.unlock()
             self._flag_end.wait()
