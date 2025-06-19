@@ -189,13 +189,17 @@ class Tree:
 
     @property
     def bases(self) -> Iterable['Component']:
-        return chain(self._bases_by_index, self._bases_by_keys.values())
+        return chain(self._bases_by_index.copy(), list(self._bases_by_keys.values()))
 
     @property
     def components(self):
         def flatter_components(childrens: Iterable['Component']) -> Iterable['Component']:
             for children in childrens:
                 yield from children.relations.childrens
+        def flatter_components(components: Iterable['Component']) -> Iterable['Component']:
+            for component in components:
+                yield component
+                yield from flatter_components(component.relations.childrens)
         return flatter_components(self.bases)
 
     @property
