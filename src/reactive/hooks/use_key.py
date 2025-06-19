@@ -25,7 +25,6 @@ def use_key[R](*keys: str, condition: Union['_Condition', bool] = True) -> Calla
     tree = get_tree()
     component = tree.get_current_component()
     hook_index = component.state.get_index()
-    state: tuple['Optional[_EventHandler[R]]', Optional['_Condition']] = component.state.get_slice(
     state: '_State[R]' = component.state.get_slice( # type: ignore
         hook_index,
         default=(None, condition)

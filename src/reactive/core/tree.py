@@ -193,9 +193,6 @@ class Tree:
 
     @property
     def components(self):
-        def flatter_components(childrens: Iterable['Component']) -> Iterable['Component']:
-            for children in childrens:
-                yield from children.relations.childrens
         def flatter_components(components: Iterable['Component']) -> Iterable['Component']:
             for component in components:
                 yield component
