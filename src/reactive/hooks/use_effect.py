@@ -14,14 +14,24 @@ __all__ = ['use_effect']
 def use_effect( 
             *dependencies: Any) -> Callable[['_Effect'], None]:
     """
-    Hook para efectos secundarios y manejo del ciclo de vida
+    Gestiona efectos secundarios y ciclo de vida del componente.
     
     Args:
-        dependencies: Un serie de dependencias que activan el efecto
-    
+        *dependencies: Dependencias que activan la ejecución del efecto
+        
     Returns:
-        decorator: Decorador que acepta un función que realiza el efecto (puede retornar función de limpieza)
-
+        Decorador que recibe la función de efecto
+        
+    Ejemplo:
+        @use_effect(user_id)
+        def fetch_data():
+            # Lógica para obtener datos
+            return cleanup_function  # Opcional
+    
+    Comportamiento:
+        - Se ejecuta después del primer render (montaje)
+        - Se vuelve a ejecutar cuando cambian las dependencias
+        - Ejecuta la función de limpieza antes de re-ejecutar o al desmontar
     """
     tree = get_tree()
     component = tree.get_current_component()
@@ -34,7 +44,7 @@ def use_effect(
     
     if before_deps == None:
         def execute_cleanup_on_unmout():
-            state: '_StateType' = component.state.get_slice(hook_index)
+            state = component.state.get_slice(hook_index)
             cleanup, _ = state
             if cleanup:
                 cleanup()
@@ -43,7 +53,7 @@ def use_effect(
 
     def decorator(effect: '_Effect') -> None:
         def handler_effect():
-            state: '_StateType' = component.state.get_slice(hook_index)
+            state = component.state.get_slice(hook_index)
             cleanup, _ = state
             if cleanup:
                 cleanup()

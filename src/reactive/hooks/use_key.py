@@ -15,12 +15,19 @@ __all__ = ['use_key']
 @hook
 def use_key[R](*keys: str, condition: Union['_Condition', bool] = True) -> Callable[['_KeyHandler[R]'], '_KeyHandler[R]']:
     """
-    Decorador para registrar key bindings
+    Registra manejadores de eventos de teclado en el componente.
     
     Args:
-        keys: Combinación de teclas (ej: "enter", "c-c", "c-up")
-        condition: Función o boleano que debe retornar True para activar el binding
-        key_binding_instance: Una instancia de un key bindings
+        *keys: Combinación de teclas (ej: "enter", "c-c")
+        condition: Condición para activar el binding (booleano o función)
+        
+    Returns:
+        Decorador que recibe la función manejadora
+        
+    Ejemplo:
+        @use_key('enter', condition=has_input)
+        def handle_enter():
+            print("Enter pressed")
     """
     tree = get_tree()
     component = tree.get_current_component()
@@ -51,4 +58,3 @@ def use_key[R](*keys: str, condition: Union['_Condition', bool] = True) -> Calla
         return func
     
     return decorator
-    

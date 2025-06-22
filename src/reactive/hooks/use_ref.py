@@ -13,15 +13,19 @@ type RefSetter[S] = Union['Setter[S]', 'Computer[S]', S]
 @hook
 def use_ref[S](initial_value: Optional[Union['Setter[S]', S]] = None) -> Tuple[S, Callable[[RefSetter[S]], None]]:
     """
-    Hook para crear referencias a valores persistentes que no renderizan el componente
+    Crea una referencia mutable que no causa re-renders.
     
     Args:
-        initial_value: Valor inicial del estado
+        initial_value: Valor inicial o función generadora
         
     Returns:
-        Tuple con:
+        Tupla con:
         - Valor actual de la referencia
-        - Función para actualizar la referencia (acepta valor o función actualizadora)
+        - Función para actualizar la referencia
+        
+    Ejemplo:
+        count_ref, set_count_ref = use_ref(0)
+        set_count_ref(5)  # Actualiza sin causar re-render
     """
     tree = get_tree()
     component = tree.get_current_component()

@@ -7,14 +7,19 @@ __all__ = ['use_memo']
 
 def use_memo[V](factory: Setter[V], *dependencies: Any) -> V:
     """
-    Hook para memoizar valores computacionalmente costosos
+    Memoiza un valor computacionalmente costoso.
+    
+    Solo recalcula el valor cuando cambian las dependencias.
     
     Args:
-        compute_func: Función que computa el valor
-        dependencies: Lista de dependencias que activan el recálculo
+        factory: Función que computa el valor
+        *dependencies: Dependencias que activan el recálculo
         
     Returns:
         Valor memoizado
+        
+    Ejemplo:
+        result = use_memo(lambda: expensive_computation(a, b), a, b)
     """
     value, set_value = use_ref(factory) # type: ignore
     last_dependencies, set_last_dependencies = use_ref(dependencies)
@@ -25,4 +30,3 @@ def use_memo[V](factory: Setter[V], *dependencies: Any) -> V:
         set_last_dependencies(dependencies)
 
     return value
-
