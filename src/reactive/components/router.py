@@ -12,6 +12,18 @@ __all__ = ['Router']
 
 @component
 def _ResolveView(views: 'Views'):
+    """
+    Componente interno que resuelve la vista actual basada en la navegación.
+    
+    Args:
+        views: Instancia de Views con la definición de vistas
+        
+    Returns:
+        Contenedor de la vista renderizada
+        
+    Raises:
+        RuntimeError: Si se detecta una estructura de vistas inválida
+    """
     key, *_ = use_navigation()
     children: Optional[Callable[[], 'AnyContainer']] = None
     
@@ -45,6 +57,17 @@ def Router(
         initial_key: str,
         initial_params: Optional[dict[str, Any]] = None
     ):
+    """
+    Componente Router para gestión de navegación en CLI.
+    
+    Args:
+        views: Definición de vistas jerárquicas
+        initial_key: Ruta inicial al montar el componente
+        initial_params: Parámetros iniciales para la ruta
+        
+    Returns:
+        Proveedor de contexto del enrutador con la vista resuelta
+    """
     state, set_state = use_state((int(0), [initial_key], [initial_params or {}]))
     history_index, history_keys, history_params = state
     
