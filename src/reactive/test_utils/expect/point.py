@@ -58,6 +58,13 @@ class ExpectPoint(StyleBase, DesplaceBase):
         assert self._expect.terminal.cursor() != self.point
         return self
 
+    def row(self) -> 'ExpectText':
+        box = Box(
+            point = Point(row=self.point.row, column=0),
+            size=Size(columns=self._expect.size.columns, rows=1)
+        )
+        return ExpectText.from_box(expect=self._expect, box=box)
+
     def text(self, text: str) -> 'ExpectText':
         """Asegura que el texto se encuentre a partir de esta posicion"""
         size = get_size_text(text=text)
