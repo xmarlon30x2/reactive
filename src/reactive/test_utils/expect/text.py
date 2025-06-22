@@ -48,8 +48,7 @@ class ExpectText(StyleBase, DesplaceBase):
 
     @property
     def text(self) -> str:
-        rect = self._expect.terminal.get_rect(box=self.box)
-        return get_text_from_rect(rect)
+        return self._get_text()
 
     def equal(self, text: str) -> Self:
         """Asegura que el texto sea igual a otro"""
@@ -235,6 +234,10 @@ class ExpectText(StyleBase, DesplaceBase):
             column=column,
             columns=columns,
         )
+
+    def _get_text(self) -> str:
+        rect = self._expect.terminal.get_rect(box=self.box)
+        return get_text_from_rect(rect)
 
     def _iter_chars(self) -> Generator[tuple['Point', 'Char']]:
         rect = self._expect.terminal.get_rect(box=self.box)

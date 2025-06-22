@@ -1,9 +1,9 @@
-from typing import List
 from unittest import TestCase
-from prompt_toolkit.widgets import Button
-from src.reactive import component
-from src.reactive.types import Node
-from reactive.test_utils.mount import mount
+from unittest.main import main
+from prompt_toolkit.widgets import Button as ButtonPT
+from reactive import component, Button
+from reactive.types import Node
+from reactive.test_utils import mount
 
 class TestComponentDecorator(TestCase):
     def test_should_render_text(self):        
@@ -13,40 +13,35 @@ class TestComponentDecorator(TestCase):
         def MyComponent():
             return text
 
-        with mount('component.screen', MyComponent) as harness:
-            harness.step()
-            
-            self.assertIn(text, harness.get_text())
+        with mount(MyComponent) as harness:
+            harness.step(expect=True).find(text).at(row=0)
 
     def test_should_render_container(self):
         text = 'This is a button'
 
         @component
         def MyComponent():
-            return Button(text)
+            return ButtonPT(text)
 
-        with mount('component.screen', MyComponent) as harness:
-            harness.step()
-            
-            self.assertIn(text, harness.get_text())
+        with mount(MyComponent) as harness:
+            harness.step(expect=True).find(text).at(row=0)
 
     def test_should_render_array_of_node(self):
         text = 'This is a text'
-        label_text = 'This is a label'
+        button_text = 'This is a button'
 
         @component
-        def MyComponent() -> List['Node']:
+        def MyComponent() -> list['Node']:
             return [
                 text,
-                Button(label_text)
+                Button(text=button_text)
             ]
 
-        with mount('component.screen', MyComponent) as harness:
-            harness.step()
+        with mount(MyComponent) as harness:
+            expect = harness.step(expect=True)
 
-            screen = harness.get_text()
-            text_index = screen.find(text)
-            label_text_index = screen.find(label_text)
-            self.assertNotEqual(text_index, -1)
-            self.assertNotEqual(label_text_index, -1)
-            self.assertGreaterEqual(label_text_index, text_index + len(text))
+            label = expect.find(text).at(row=0)
+            label.down().row().find(button_text)
+
+if __name__ == '__main__':
+    main().runTests()

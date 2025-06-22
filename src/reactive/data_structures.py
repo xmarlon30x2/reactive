@@ -123,6 +123,6 @@ class Box(NamedTuple):
         if (not isinstance(item, Box)) or not origin_inside:
             return origin_inside
 
-        other_in_row_space = self.size.rows + self.point.row > (point.row + item.size.rows) >= self.point.row
-        other_in_column_space = self.size.columns + self.point.column > (point.column + item.size.columns) >= self.point.column
+        other_in_row_space = self.size.rows + self.point.row >= (point.row + item.size.rows) > self.point.row
+        other_in_column_space = self.size.columns + self.point.column >= (point.column + item.size.columns) > self.point.column
         return other_in_row_space and other_in_column_space

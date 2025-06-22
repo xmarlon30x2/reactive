@@ -69,10 +69,14 @@ def Button(
         default_disabled=RIGHT_SYMBOL_DISABLED,
         disable=disable
     )
+    left_width = len(left_symbol)
+    right_width = len(right_symbol)
+    calcuated_width = calculate_width(width, len(text), left_width, right_width)
+    text_size = calcuated_width - (left_width + right_width)
     return _Button(
-        text=text,
+        text=text if len(text) <= text_size else text[:text_size],
         handler=handler if not disable else None,
-        width=calculate_width(width, len(text), len(left_symbol), len(right_symbol)),
+        width=calcuated_width,
         left_symbol=left_symbol,
         right_symbol=right_symbol
     )

@@ -43,7 +43,7 @@ class ExpectPoint(StyleBase, DesplaceBase):
     
     @property
     def char(self) -> str:
-        return self._expect.terminal.get_char(row=self.point.row, column=self.point.column).data
+        return self.char
     
     @property
     def style(self) -> 'Style':
@@ -78,7 +78,7 @@ class ExpectPoint(StyleBase, DesplaceBase):
         return self
 
     def _get_text(self) -> str:
-        return self.char
+        return self._expect.terminal.get_char(row=self.point.row, column=self.point.column).data
 
     def _iter_chars(self) -> Generator[tuple['Point', 'Char']]:
         char = self._expect.terminal.get_char(row=self.point.row, column=self.point.column)

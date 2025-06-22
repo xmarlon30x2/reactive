@@ -106,7 +106,7 @@ class Tree:
 
             state = State()
             effects = Effects()
-            new_children = Component(func, props=props, state=state, effects=effects)
+            new_children = Component(render=func, props=props, state=state, effects=effects)
             new_children.relations.set_parent(new_parent=parent)
             new_children.mount(self)
             parent.relations.active_child(new_children)
@@ -124,7 +124,7 @@ class Tree:
         
         state = State()
         effects = Effects()
-        new_base = Component(func, props=props, state=state, effects=effects)
+        new_base = Component(render=func, props=props, state=state, effects=effects)
         new_base.mount(self)
         self.active_base(new_base)
         return new_base
