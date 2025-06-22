@@ -1,6 +1,7 @@
 from unittest import TestCase
 from unittest.mock import MagicMock
-from src.reactive.router.views import Views, is_layout_view, is_view
+from unittest.main import main
+from reactive.router.views import Views, is_layout_view, is_view
 
 class TestViews(TestCase):
     def test_get_trace_should_return_a_tuple_with_view(self):
@@ -54,3 +55,6 @@ class TestViews(TestCase):
         self.assertEqual(view.get('key'), 'my-view')
         self.assertIsInstance(view.get('component'), MagicMock)
         view['component'].assert_not_called() # type: ignore
+
+if __name__ == '__main__':
+    main().runTests()
