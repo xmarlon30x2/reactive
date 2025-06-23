@@ -5,7 +5,15 @@ from prompt_toolkit.data_structures import Size as SizePT, Point as PointPT
 __all__ = ['Char', 'Point', 'Size', 'Style']
 
 class Style(Attrs):
-
+    """
+    Representa estilos de texto para la terminal.
+    
+    Hereda de Attrs de Prompt Toolkit y añade métodos utilitarios.
+    
+    Métodos:
+        default: Crea un estilo con valores predeterminados
+        from_attrs: Convierte Attrs en instancia de Style
+    """
     @classmethod
     def default(cls) -> 'Self':
         return cls(
@@ -25,6 +33,16 @@ class Style(Attrs):
         return cls(*attrs)
 
 class Char(NamedTuple):
+    """
+    Representa un carácter con su estilo asociado.
+    
+    Atributos:
+        data: Carácter (string de un solo caracter)
+        style: Estilo aplicado al carácter
+        
+    Métodos:
+        space: Crea un carácter espacio con estilo predeterminado
+    """
     data: str
     style: Style
 
@@ -36,6 +54,18 @@ class Char(NamedTuple):
         )
 
 class Point(NamedTuple):
+    """
+    Representa una posición en una cuadrícula 2D (fila, columna).
+    
+    Atributos:
+        row: Posición vertical (fila)
+        column: Posición horizontal (columna)
+        
+    Métodos:
+        zero: Crea un punto en (0, 0)
+        from_pt: Convierte PointPT de Prompt Toolkit
+        Operadores: +, - para operaciones vectoriales
+    """
     row: int
     column: int
 
@@ -58,7 +88,16 @@ class Point(NamedTuple):
         return Point(row=self.row - other.row, column=self.column - other.column)
 
 class Size(SizePT):
-
+    """
+    Representa dimensiones en una cuadrícula (filas, columnas).
+    
+    Hereda de SizePT de Prompt Toolkit y añade operaciones adicionales.
+    
+    Métodos:
+        one: Crea un tamaño de 1x1
+        from_pt: Convierte SizePT de Prompt Toolkit
+        Operadores: +, -, >, >=, <, <= para comparaciones y operaciones
+    """
     @classmethod
     def one(cls) -> Self:
         return cls(rows=1, columns=1)
@@ -98,6 +137,18 @@ class Size(SizePT):
         return Size(rows=self.rows - other.rows, columns=self.columns - other.columns)
 
 class Box(NamedTuple):
+    """
+    Representa un área rectangular definida por posición y tamaño.
+    
+    Atributos:
+        point: Esquina superior izquierda (Point)
+        size: Dimensiones del área (Size)
+        
+    Métodos:
+        from_position_and_size: Crea un Box desde coordenadas
+        collide: Comprueba si un punto colisiona con el área
+        __contains__: Comprueba si un punto u otro Box están contenidos
+    """
     point: Point
     size: Size
 

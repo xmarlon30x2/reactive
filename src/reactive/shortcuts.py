@@ -20,6 +20,23 @@ def create_root(
         recover_focus_key: Union[Optional[str], Literal[False]] = None,
         tree_instance: Optional['Tree'] = None
     ) -> Tuple['AnyContainer', 'KeyBindingsBase']:
+    """
+    Crea el contenedor raíz y key bindings para una aplicación CLI.
+    
+    Args:
+        component_func: Función que renderiza el componente raíz
+        fallback: Manejo de errores (False para deshabilitar, None para DefaultFallback)
+        recover_focus_key: Tecla para recuperar el foco (False para deshabilitar)
+        tree_instance: Árbol de componentes existente (opcional)
+        
+    Returns:
+        Tupla (contenedor raíz, key bindings asociados)
+        
+    Proceso:
+        1. Configura ErrorBoundary si fallback no es False
+        2. Crea contenedor dinámico que actualiza el árbol
+        3. Combina key bindings del árbol con el de recuperación de foco
+    """
     tree = tree_instance if tree_instance is not None else Tree()
 
     if fallback != False:
@@ -53,6 +70,21 @@ def run_app(*root_containers: 'AnyContainer',
            refresh_interval: Optional[float] = None,
            mouse_support: bool = True
         ) -> None:
+    """
+    Ejecuta una aplicación CLI con los componentes especificados.
+    
+    Args:
+        *root_containers: Contenedores raíz de la aplicación
+        key_bindings: Key bindings a usar (puede ser lista para combinar)
+        full_screen: Modo pantalla completa (True por defecto)
+        refresh_interval: Intervalo de refresco en segundos
+        mouse_support: Habilita soporte para ratón (True por defecto)
+        
+    Proceso:
+        1. Crea un layout con los contenedores raíz
+        2. Combina key bindings si es necesario
+        3. Inicia la aplicación con las configuraciones especificadas
+    """
     # Combinar contenedores en un layout
     layout = Layout(HSplit(root_containers))
     key_bindings = merge_key_bindings(key_bindings) if isinstance(key_bindings, list) else key_bindings
