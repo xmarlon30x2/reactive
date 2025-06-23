@@ -6,5 +6,6 @@ from .use_key import *
 from .use_memo import *
 from .use_navigation import *
 from .use_provider import *
+from .use_reducer import *
 from .use_ref import *
 from .use_state import *
