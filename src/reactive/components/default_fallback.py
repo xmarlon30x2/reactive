@@ -26,6 +26,24 @@ def DefaultFallback(exception: Exception):
     traceback = '\n'.join(format_exception(
         type(exception), exception, exception.__traceback__))
     formatted = PygmentsTokens(list(lex(traceback, python_traceback_lexer)))
+    """
+    Componente predeterminado para mostrar excepciones con formato mejorado.
+    
+    Características:
+        - Muestra el traceback completo con resaltado de sintaxis
+        - Panel desplazable con controles de teclado (flechas arriba/abajo)
+        - Título dinámico con el nombre de la excepción
+        - Diseño responsivo que se adapta al tamaño del terminal
+        
+    Args:
+        exception: Excepción a mostrar
+        
+    Returns:
+        Componente con el error formateado
+        
+    Ejemplo de uso:
+        ErrorBoundary(fallback=lambda key, exc: DefaultFallback(None, key, exception=exc), children=lambda: mi_componente())
+    """
 
     return Frame(
         ScrollablePane(

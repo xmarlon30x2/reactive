@@ -19,6 +19,19 @@ def get_symbol(
         default_disabled: str,
         disable: bool
     ) -> str:
+    """
+    Determina el símbolo a mostrar según el estado del botón (normal/deshabilitado).
+    
+    Args:
+        normal: Símbolo personalizado para estado normal
+        default_normal: Símbolo predeterminado para estado normal
+        disabled: Símbolo personalizado para estado deshabilitado
+        default_disabled: Símbolo predeterminado para estado deshabilitado
+        disable: Estado actual del botón
+        
+    Returns:
+        Símbolo seleccionado según las reglas de prioridad
+    """
     if not disable and normal:
         return normal
     if not disable and not normal:
@@ -37,6 +50,18 @@ def calculate_width(
         left_width: int,
         right_width: int,
     ):
+    """
+    Calcula el ancho del botón según diferentes estrategias.
+    
+    Args:
+        width: Especificación de ancho (número fijo, 'auto', o None)
+        text_lenght: Longitud del texto del botón
+        left_width: Ancho del símbolo izquierdo
+        right_width: Ancho del símbolo derecho
+        
+    Returns:
+        Ancho calculado para el botón
+    """
     if width is None:
         return min(MAX_SIZE, text_lenght)
     if width == 'auto':
@@ -54,6 +79,22 @@ def Button(
         right_symbol: Optional[str] = None,
         right_symbol_disabled: Optional[Union[str, Literal[False]]] = None
     ):
+    """
+    Componente Button personalizado para interfaces CLI.
+    
+    Args:
+        text: Texto a mostrar en el botón
+        handler: Función a ejecutar al presionar el botón
+        width: Ancho del botón ('auto', entero, o None para máximo 30)
+        disable: Deshabilita el botón si es True
+        left_symbol: Símbolo izquierdo personalizado (estado normal)
+        left_symbol_disabled: Símbolo izquierdo personalizado (estado deshabilitado)
+        right_symbol: Símbolo derecho personalizado (estado normal)
+        right_symbol_disabled: Símbolo derecho personalizado (estado deshabilitado)
+        
+    Returns:
+        Componente Button de Prompt Toolkit configurado
+    """
     text = text or DEFAULT_TEXT
     left_symbol = get_symbol(
         normal=left_symbol,

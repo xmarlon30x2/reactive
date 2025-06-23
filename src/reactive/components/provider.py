@@ -13,6 +13,17 @@ V = TypeVar('V')
 
 @component
 def Provider(value: V, context: 'Context[V]', children: Callable[[], 'AnyContainer']):
+    """
+    Proveedor de contexto para componentes hijos.
+    
+    Args:
+        value: Valor a proveer en el contexto
+        context: Contexto Reactivo donde se proveerá el valor
+        children: Función que renderiza los componentes hijos
+        
+    Returns:
+        Contenedor con los hijos renderizados dentro del contexto
+    """
     ctx = use_provider(value=value, context=context)
     with ctx():
         return children()
