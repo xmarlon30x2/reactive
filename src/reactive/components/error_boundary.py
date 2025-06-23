@@ -1,56 +1,41 @@
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import Callable, TYPE_CHECKING, Optional
 
+from ..hooks.use_id import use_id
 from ..hooks.use_state import use_state
 from ..components.component import component
 
 if TYPE_CHECKING:
-    from prompt_toolkit.layout.containers import AnyContainer
+    from ..types import Node
 
 __all__ = ['ErrorBoundary']
 
 initial_value: Optional[Exception] = None
 
 @component
-def ErrorBoundary(fallback: Callable[[str, Exception], 'AnyContainer'], 
-                 children: Callable[[], 'AnyContainer']) -> 'AnyContainer':
+def ErrorBoundary(
+    fallback: Callable[[str, Exception], 'Node'],
+    children: Callable[[], 'Node']
+) -> 'Node':
     """
-    Componente límite de error que captura excepciones en componentes hijos.
-    
-    Comportamiento:
-        1. Intenta renderizar los componentes hijos
-        2. Si ocurre una excepción:
-            - Captura el error
-            - Almacena el error en el estado del componente
-            - Renderiza el componente fallback con el error
-        3. En renders posteriores, sigue mostrando el fallback hasta que se resetea
+    Componente para capturar errores en componentes hijos
     
     Args:
-        fallback: Función que recibe una key y la excepción y retorna un componente UI
-        children: Componentes hijos a proteger
-        
-    Returns:
-        - children() si no hay errores
-        - fallback(key, exception) si ocurrió un error
-        
-    Ejemplo de uso:
-        @component
-        def my_fallback(exc: Exception):
-            return Label(text=f"Error: {str(exc)}")
-        
-        @component
-        def protected_content():
-            return MyComponent()
-        
-        ErrorBoundary(fallback=lambda key, exc: my_fallback(None, key, exc=exc), children=protected_content)
+        fallback: Función que recibe la excepción y retorna componente alternativo
+        children: Funcion de que crea el componente hijo a proteger
     """
-    exception, set_exception = use_state(initial_value=initial_value)
-
-    if not exception:
+    # Estado para almacenar la excepción
+    key = use_id()
+    exception, set_exception = use_state(initial_value)
+    
+    # Si no hay error, intenta renderizar los hijos
+    if exception is None: # type: ignore
         try:
             return children()
-
-        except Exception as exc:
-            set_exception(exc)
-            exception = exc
+        except Exception as e:
+            # Captura la excepción y actualiza el estado
+            set_exception(e)
+            # Renderiza el fallback inmediatamente
+            return fallback(key, e)
     
-    return fallback('fallback', exception)
+    # Si hay un error almacenado, muestra el fallback
+    return fallback(key, exception)

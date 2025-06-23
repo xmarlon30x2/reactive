@@ -1,31 +1,24 @@
 from traceback import format_exception
-
+from prompt_toolkit.layout import ScrollablePane, Window
 from prompt_toolkit.widgets import Frame
-from prompt_toolkit.layout import ScrollablePane, Window, FormattedTextControl, HSplit
-from prompt_toolkit.key_binding.bindings.scroll import scroll_one_line_up, scroll_one_line_down
-from prompt_toolkit.key_binding.key_bindings import KeyBindings
-from prompt_toolkit.formatted_text import PygmentsTokens
-from prompt_toolkit.styles import style_from_pygments_cls
+from prompt_toolkit.layout.controls import FormattedTextControl
+from prompt_toolkit.formatted_text import HTML
+from prompt_toolkit.key_binding import KeyBindings, KeyPressEvent
+from prompt_toolkit.key_binding.bindings.scroll import (
+    scroll_one_line_up, scroll_one_line_down,
+    scroll_page_down, scroll_page_up,
+)
+from pygments import highlight # type: ignore
 from pygments.lexers.python import PythonTracebackLexer # type: ignore
-from pygments import lex # type: ignore
-from pygments.styles.onedark import OneDarkStyle # type: ignore
+from pygments.formatters import HtmlFormatter # type: ignore
 
+from ..types import Node
 from .component import component
 
 __all__ = ['DefaultFallback']
 
-style = style_from_pygments_cls(OneDarkStyle)
-python_traceback_lexer = PythonTracebackLexer()
-
-kb = KeyBindings()
-kb.add('up')(scroll_one_line_up)
-kb.add('down')(scroll_one_line_down)
-
 @component
-def DefaultFallback(exception: Exception):
-    traceback = '\n'.join(format_exception(
-        type(exception), exception, exception.__traceback__))
-    formatted = PygmentsTokens(list(lex(traceback, python_traceback_lexer)))
+def DefaultFallback(exception: Exception) -> 'Node':
     """
     Componente predeterminado para mostrar excepciones con formato mejorado.
     
@@ -44,16 +37,46 @@ def DefaultFallback(exception: Exception):
     Ejemplo de uso:
         ErrorBoundary(fallback=lambda key, exc: DefaultFallback(None, key, exception=exc), children=lambda: mi_componente())
     """
+    # Genera el traceback completo
+    tb_lines = format_exception(type(exception), exception, exception.__traceback__)
+    tb_text = ''.join(tb_lines)
+    
+    # Aplica resaltado de sintaxis al traceback
+    highlighted = highlight(tb_text, PythonTracebackLexer(), HtmlFormatter[str](
+        full=True, 
+        style='colorful',
+        noclasses=True
+    ))
+    
+    # Crea bindings de teclado para desplazamiento
+    kb = KeyBindings()
 
+    @kb.add('up')
+    def _(event: 'KeyPressEvent'):
+        scroll_one_line_up(event)
+    
+    @kb.add('down')
+    def _(event: 'KeyPressEvent'):
+        scroll_one_line_down(event)
+    
+    @kb.add('pageup')
+    def _(event: 'KeyPressEvent'):
+        scroll_page_up(event)
+
+    @kb.add('pagedown')
+    def _(event: 'KeyPressEvent'):
+        scroll_page_down(event)
+    
+    # Construye la interfaz
     return Frame(
-        ScrollablePane(
-            HSplit([
-                Window(FormattedTextControl(
-                    formatted,
+        title=f"Error: {type(exception).__name__}",
+        body=ScrollablePane(
+            Window(
+                FormattedTextControl(
+                    HTML(highlighted),
                     focusable=True,
-                    show_cursor=True,
                     key_bindings=kb
-                ))
-            ])
+                )
+            )
         )
     )
