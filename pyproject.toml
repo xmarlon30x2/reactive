@@ -35,3 +35,8 @@ Changelog = "https://github.com/xmarlon30x2/reactive/releases"
 [build-system]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = [
+    "coverage>=7.9.1",
+]
