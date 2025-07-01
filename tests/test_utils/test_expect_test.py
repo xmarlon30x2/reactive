@@ -136,18 +136,22 @@ class TestExpectText(unittest.TestCase):
             (Point(0, 1), Char('e', style))
         ]
         
-        # Parchear el generador de caracteres
-        with patch.object(
-            self.text_area, '_iter_chars', return_value=iter(chars)
-        ):
-            self.text_area.bold(True)
-            self.text_area.color("#ff0000")
-            self.text_area.italic(False)
-            
-            # Probar falla en estilo
-            with self.assertRaises(AssertionError) as cm:
-                self.text_area.underline(True)
-            self.assertIn('tuviera el underline="True"', str(cm.exception))
+        # Crear un mock para _iter_chars
+        mock_iter = MagicMock(return_value=chars)
+        self.text_area._iter_chars = mock_iter # type: ignore
+        
+        # Estos deben pasar
+        self.text_area.bold(True)
+        self.text_area.color("#ff0000")
+        self.text_area.italic(False)
+        
+        # Probar falla en estilo - debe lanzar AssertionError
+        with self.assertRaises(AssertionError) as cm:
+            self.text_area.underline(True)
+        self.assertIn('tuviera el underline="True"', str(cm.exception))
+        
+        # Verificar que se llamó a _iter_chars
+        self.assertEqual(mock_iter.call_count, 4)
 
     def test_styled_method(self):
         # Configurar estilos de prueba
@@ -160,20 +164,25 @@ class TestExpectText(unittest.TestCase):
             (Point(0, 1), Char('e', style))
         ]
         
-        with patch.object(
-            self.text_area, '_iter_chars', return_value=iter(chars)
-        ):
+        # Crear un mock para _iter_chars
+        mock_iter = MagicMock(return_value=chars)
+        self.text_area._iter_chars = mock_iter # type: ignore
+        
+        # Esto debe pasar
+        self.text_area.styled(
+            bold=True,
+            color="#ff0000",
+        )
+        
+        # Esto debe fallar - debe lanzar AssertionError
+        with self.assertRaises(AssertionError):
             self.text_area.styled(
                 bold=True,
-                color="#ff0000",
-                italic=False
+                color="blue"  # Color incorrecto
             )
             
-            with self.assertRaises(AssertionError):
-                self.text_area.styled(
-                    bold=True,
-                    color="blue"  # Color incorrecto
-                )
+        # Verificar que se llamó a _iter_chars
+        self.assertEqual(mock_iter.call_count, 10)
 
     def test_find(self):
         with patch(

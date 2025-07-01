@@ -4,6 +4,11 @@ from ...data_structures import Style, Char, Point
 
 __all__ = ['StyleBase']
 
+def _default_value[V](value: V | None, default: V) -> V:
+    if value is None:
+        return default
+    return value
+
 class StyleBase:
     @abstractmethod
     def _get_text(self) -> str: ...
@@ -14,57 +19,57 @@ class StyleBase:
     def bold(self, value: bool | None = True) -> Self:
         """Asegura que el texto esta en negrita"""
         for point, style in self._iter_styles():
-            assert style.bold == value, f'Se esperaba que todo el texto "{self._get_text()}" tuviera el el bold="{value}", pero la posicion {point} tiene "{style.bold}"'
+            assert _default_value(style.bold, False) == _default_value(value, False), f'Se esperaba que todo el texto "{self._get_text()}" tuviera el el bold="{value}", pero la posicion {point} tiene "{style.bold}"'
 
         return self
 
     def color(self, value: str | None = None) -> Self:
         """Asegura que el texto tiene un color"""
         for point, style in self._iter_styles():
-            assert style.color == value, f'Se esperaba que todo el texto "{self._get_text()}" tuviera el color="{value}", pero la posicion {point} tiene "{style.color}"'
+            assert _default_value(style.color, None) == _default_value(value, None), f'Se esperaba que todo el texto "{self._get_text()}" tuviera el color="{value}", pero la posicion {point} tiene "{style.color}"'
 
         return self
 
     def bgcolor(self, value: str | None = None) -> Self:
         """Asegura que el texto tiene un color de fondo"""
         for point, style in self._iter_styles():
-            assert style.bgcolor == value, f'Se esperaba que todo el texto "{self._get_text()}" tuviera el bgcolor="{value}", pero la posicion {point} tiene "{style.bgcolor}"'
+            assert _default_value(style.bgcolor, None) == _default_value(value, None), f'Se esperaba que todo el texto "{self._get_text()}" tuviera el bgcolor="{value}", pero la posicion {point} tiene "{style.bgcolor}"'
 
         return self
     
     def blink(self, value: bool | None = None) -> Self:
         for point, style in self._iter_styles():
-            assert style.blink == value, f'Se esperaba que todo el texto "{self._get_text()}" tuviera el blink="{value}", pero la posicion {point} tiene "{style.blink}"'
+            assert _default_value(style.blink, False) == _default_value(value, False), f'Se esperaba que todo el texto "{self._get_text()}" tuviera el blink="{value}", pero la posicion {point} tiene "{style.blink}"'
 
         return self
     
     def italic(self, value: bool | None = None) -> Self:
         for point, style in self._iter_styles():
-            assert style.italic == value, f'Se esperaba que todo el texto "{self._get_text()}" tuviera el italic="{value}", pero la posicion {point} tiene "{style.italic}"'
+            assert _default_value(style.italic, False) == _default_value(value, False), f'Se esperaba que todo el texto "{self._get_text()}" tuviera el italic="{value}", pero la posicion {point} tiene "{style.italic}"'
 
         return self
     
     def reverse(self, value: bool | None = None) -> Self:
         for point, style in self._iter_styles():
-            assert style.reverse == value, f'Se esperaba que todo el texto "{self._get_text()}" tuviera el reverse="{value}", pero la posicion {point} tiene "{style.reverse}"'
+            assert _default_value(style.reverse, False) == _default_value(value, False), f'Se esperaba que todo el texto "{self._get_text()}" tuviera el reverse="{value}", pero la posicion {point} tiene "{style.reverse}"'
 
         return self
     
     def strike(self, value: bool | None = None) -> Self:
         for point, style in self._iter_styles():
-            assert style.strike == value, f'Se esperaba que todo el texto "{self._get_text()}" tuviera el strike="{value}", pero la posicion {point} tiene "{style.strike}"'
+            assert _default_value(style.strike, False) == _default_value(value, False), f'Se esperaba que todo el texto "{self._get_text()}" tuviera el strike="{value}", pero la posicion {point} tiene "{style.strike}"'
 
         return self
     
     def underline(self, value: bool | None = None) -> Self:
         for point, style in self._iter_styles():
-            assert style.underline == value, f'Se esperaba que todo el texto "{self._get_text()}" tuviera el underline="{value}", pero la posicion {point} tiene "{style.underline}"'
+            assert _default_value(style.underline, False) == _default_value(value, False), f'Se esperaba que todo el texto "{self._get_text()}" tuviera el underline="{value}", pero la posicion {point} tiene "{style.underline}"'
 
         return self
     
     def hidden(self, value: bool | None = None) -> Self:
         for point, style in self._iter_styles():
-            assert style.hidden == value, f'Se esperaba que todo el texto "{self._get_text()}" tuviera el hidden="{value}", pero la posicion {point} tiene "{style.hidden}"'
+            assert _default_value(style.hidden, False) == _default_value(value, False), f'Se esperaba que todo el texto "{self._get_text()}" tuviera el hidden="{value}", pero la posicion {point} tiene "{style.hidden}"'
 
         return self
 
