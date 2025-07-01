@@ -1,4 +1,4 @@
-from reactive.components.component import component
+from .component import component
 from typing import TYPE_CHECKING, Callable, TypeVar
 
 from ..hooks.use_provider import use_provider
