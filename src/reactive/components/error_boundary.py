@@ -34,8 +34,7 @@ def ErrorBoundary(
         except Exception as e:
             # Captura la excepción y actualiza el estado
             set_exception(e)
-            # Renderiza el fallback inmediatamente
-            return fallback(key, e)
-    
+            exception = e
+
     # Si hay un error almacenado, muestra el fallback
     return fallback(key, exception)

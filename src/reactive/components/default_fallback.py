@@ -2,20 +2,28 @@ from traceback import format_exception
 from prompt_toolkit.layout import ScrollablePane, Window
 from prompt_toolkit.widgets import Frame
 from prompt_toolkit.layout.controls import FormattedTextControl
-from prompt_toolkit.formatted_text import HTML
+from prompt_toolkit.formatted_text.pygments import PygmentsTokens
 from prompt_toolkit.key_binding import KeyBindings, KeyPressEvent
 from prompt_toolkit.key_binding.bindings.scroll import (
     scroll_one_line_up, scroll_one_line_down,
-    scroll_page_down, scroll_page_up,
+    scroll_page_down, scroll_page_up
 )
-from pygments import highlight # type: ignore
+from pygments import lex # type: ignore
 from pygments.lexers.python import PythonTracebackLexer # type: ignore
-from pygments.formatters import HtmlFormatter # type: ignore
+
+from ..hooks.use_memo import use_memo # type: ignore
 
 from ..types import Node
 from .component import component
 
 __all__ = ['DefaultFallback']
+
+def exception_to_formated_text(exception: 'Exception'):
+    tb_lines = format_exception(type(exception), exception, exception.__traceback__)
+    tb_text = ''.join(tb_lines)
+    
+    tokens = lex(tb_text, lexer=PythonTracebackLexer())
+    return PygmentsTokens(tokens) # type: ignore
 
 @component
 def DefaultFallback(exception: Exception) -> 'Node':
@@ -37,18 +45,6 @@ def DefaultFallback(exception: Exception) -> 'Node':
     Ejemplo de uso:
         ErrorBoundary(fallback=lambda key, exc: DefaultFallback(None, key, exception=exc), children=lambda: mi_componente())
     """
-    # Genera el traceback completo
-    tb_lines = format_exception(type(exception), exception, exception.__traceback__)
-    tb_text = ''.join(tb_lines)
-    
-    # Aplica resaltado de sintaxis al traceback
-    highlighted = highlight(tb_text, PythonTracebackLexer(), HtmlFormatter[str](
-        full=True, 
-        style='colorful',
-        noclasses=True
-    ))
-    
-    # Crea bindings de teclado para desplazamiento
     kb = KeyBindings()
 
     @kb.add('up')
@@ -67,13 +63,13 @@ def DefaultFallback(exception: Exception) -> 'Node':
     def _(event: 'KeyPressEvent'):
         scroll_page_down(event)
     
-    # Construye la interfaz
+    text_formated = use_memo(lambda: exception_to_formated_text(exception), exception)
     return Frame(
         title=f"Error: {type(exception).__name__}",
         body=ScrollablePane(
             Window(
                 FormattedTextControl(
-                    HTML(highlighted),
+                    text_formated,
                     focusable=True,
                     key_bindings=kb
                 )
