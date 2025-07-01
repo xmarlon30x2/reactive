@@ -87,6 +87,9 @@ class Point(NamedTuple):
             raise ValueError('No se puede restar')
         return Point(row=self.row - other.row, column=self.column - other.column)
 
+    def __str__(self) -> str:
+        return f"(fila={self.row}, columna={self.column})"
+
 class Size(SizePT):
     """
     Representa dimensiones en una cuadrícula (filas, columnas).
