@@ -9,3 +9,5 @@ wheels/
 # Virtual environments
 .venv
 typings/
+.coverage
+htmlcov
