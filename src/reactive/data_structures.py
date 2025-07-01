@@ -5,15 +5,33 @@ from prompt_toolkit.data_structures import Size as SizePT, Point as PointPT
 __all__ = ['Char', 'Point', 'Size', 'Style']
 
 class Style(Attrs):
-    """
-    Representa estilos de texto para la terminal.
+    """Representa estilos de texto con constructor flexible"""
     
-    Hereda de Attrs de Prompt Toolkit y añade métodos utilitarios.
-    
-    Métodos:
-        default: Crea un estilo con valores predeterminados
-        from_attrs: Convierte Attrs en instancia de Style
-    """
+    @classmethod
+    def new(
+        cls,
+        color: str | None = None,
+        bgcolor: str | None = None,
+        bold: bool | None = None,
+        underline: bool | None = None,
+        strike: bool | None = None,
+        italic: bool | None = None,
+        blink: bool | None = None,
+        reverse: bool | None = None,
+        hidden: bool | None = None
+    ) -> Self:
+        return cls(
+            color=color,
+            bgcolor=bgcolor,
+            bold=bold,
+            underline=underline,
+            strike=strike,
+            italic=italic,
+            blink=blink,
+            reverse=reverse,
+            hidden=hidden
+        )
+
     @classmethod
     def default(cls) -> 'Self':
         return cls(
@@ -30,7 +48,17 @@ class Style(Attrs):
 
     @classmethod
     def from_attrs(cls, attrs: Attrs) -> Self:
-        return cls(*attrs)
+        return cls(
+            color=attrs.color,
+            bgcolor=attrs.bgcolor,
+            bold=attrs.bold,
+            underline=attrs.underline,
+            strike=attrs.strike,
+            italic=attrs.italic,
+            blink=attrs.blink,
+            reverse=attrs.reverse,
+            hidden=attrs.hidden
+        )
 
 class Char(NamedTuple):
     """
