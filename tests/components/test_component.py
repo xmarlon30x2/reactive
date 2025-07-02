@@ -1,12 +1,11 @@
 from unittest import TestCase
 from unittest.main import main
 from prompt_toolkit.widgets import Button as ButtonPT
-from reactive import component, Button
-from reactive.types import Node
-from reactive.test_utils import mount
+from src.reactive import component, Button
+from src.reactive.types import Node
+from src.reactive.test_utils import mount
 
 class TestComponentDecorator(TestCase):
-    def test_should_render_text(self):        
     def test_should_render_text(self):
         text = 'This is a component'
         
