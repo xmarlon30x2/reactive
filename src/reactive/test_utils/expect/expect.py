@@ -32,7 +32,7 @@ class Expect:
     def find(self, query: str | list[str]) -> 'ExpectText':
         """Busca un texto"""
         box = find_box(text=self.screen, query=query)
-        assert box, f'No se encontro el texto "{query}" en "{self.screen}"'
+        assert box, f'No se encontro el texto "{query}" en la pantalla\nScreen:\n"{self.screen}"'
         return ExpectText.from_box(expect=self, box=box)
     
     @overload

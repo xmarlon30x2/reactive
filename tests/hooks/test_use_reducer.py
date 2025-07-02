@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.main import main
-from reactive import component, use_reducer, use_key
-from reactive.test_utils import mount, Expect
+from src.reactive import component, use_reducer, use_key
+from src.reactive.test_utils import mount, Expect
 
 def expect_result(expect: 'Expect', text: str) -> None:
     expect.find('Count:').at(row=0, column=0).right().text(text)
@@ -34,9 +34,9 @@ class TestUseReducer(TestCase):
 
         with mount(MyComponent) as harness:
 
-            expect_result(harness.step(expect=True), text='0')
+            expect_result(harness.step(expect=True, epochs=2), text='0')
             harness.input.send_text('a')
-            expect_result(harness.step(expect=True), '1')
+            expect_result(harness.step(expect=True, epochs=2), '1')
             harness.input.send_text('ss')
             expect_result(harness.step(expect=True, epochs=2), '-1')
             expect_result(harness.step(expect=True), '-1')

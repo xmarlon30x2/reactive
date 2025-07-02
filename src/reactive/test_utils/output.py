@@ -79,8 +79,7 @@ class TerminalOutput(Output):
 
     def erase_screen(self) -> None:
         # self._screen.erase_in_display(2)
-        # self.cursor_goto(0, 0)
-        pass
+        self.cursor_goto(0, 0)
 
     def enter_alternate_screen(self) -> None:
         if not self._alternate_screen_active:
@@ -110,16 +109,14 @@ class TerminalOutput(Output):
         self._alternate_screen_active = False
 
     def erase_down(self) -> None:
-        # cursor = self._screen.cursor
-        # self._screen.cursor = Cursor(
-        #     x=cursor.x, y=cursor.y + 1, attrs=CharPE(data=' '))
+        # self.cursor_goto(self._screen.cursor.y + 1, self._screen.cursor.x)
         # self._screen.erase_in_display(0)
-        # self._screen.cursor = cursor
-        return
+        # self.cursor_goto(0, 0)
+        pass
 
     def erase_end_of_line(self) -> None:
-        # self._screen.erase_in_line(0)
-        return
+        self._screen.erase_in_line(0)
+        self.cursor_goto(0, 0)
 
     def reset_attributes(self) -> None:
         self._screen.select_graphic_rendition(0)

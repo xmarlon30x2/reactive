@@ -7,6 +7,7 @@ from reactive.test_utils import mount
 
 class TestComponentDecorator(TestCase):
     def test_should_render_text(self):        
+    def test_should_render_text(self):
         text = 'This is a component'
         
         @component

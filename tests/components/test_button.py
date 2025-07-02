@@ -1,7 +1,7 @@
 from unittest.main import main
 from unittest import TestCase
-from reactive.test_utils import mount
-from reactive.components.button import Button, DEFAULT_TEXT
+from src.reactive.test_utils import mount
+from src.reactive.components.button import Button, DEFAULT_TEXT
 
 
 class TestButton(TestCase):

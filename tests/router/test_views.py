@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import MagicMock
 from unittest.main import main
-from reactive.router.views import Views, is_layout_view, is_view
+from src.reactive.router.views import Views, is_layout_view, is_view
 
 class TestViews(TestCase):
     def test_get_trace_should_return_a_tuple_with_view(self):

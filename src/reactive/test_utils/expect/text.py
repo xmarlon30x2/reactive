@@ -223,7 +223,7 @@ class ExpectText(StyleBase, DesplaceBase):
                 prefix = "A   |"
             else:
                 prefix = "    |"
-            annotated_screen.append(f"{prefix}{line}")
+            annotated_screen.append(f"{prefix}{line}|")
         
         # Añadir marcadores de columna
         marker_lines: list[str] = []
