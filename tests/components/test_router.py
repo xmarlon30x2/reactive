@@ -1,6 +1,5 @@
 from typing import Any, Callable
 from unittest import TestCase
-from unittest.main import main
 from reactive.components.link import Link
 from reactive import component, create_views, Router
 from reactive.types import Node
@@ -39,6 +38,3 @@ class TestRouter(TestCase):
             query('End', 'To start', 2)
             harness.input.send_text('\r')
             query('Start Page', 'To end', 2)
-
-if __name__ == '__main__':
-    main().runTests()

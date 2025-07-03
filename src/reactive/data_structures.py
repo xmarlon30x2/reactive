@@ -135,9 +135,9 @@ class Size(SizePT):
 
     @classmethod
     def from_pt(cls, point: SizePT) -> Self:
-        return cls(*point)
+        return cls(rows=point.rows, columns=point.columns)
 
-    def __lg__(self, other: tuple[int, ...]) -> bool:
+    def __lt__(self, other: tuple[int, ...]) -> bool:
         if not isinstance(other, Size):
             raise ValueError('No se puede comparar')
         return other.rows > self.rows and other.columns > self.columns
