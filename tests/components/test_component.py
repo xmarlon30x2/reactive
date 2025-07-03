@@ -1,5 +1,4 @@
 from unittest import TestCase
-from unittest.main import main
 from prompt_toolkit.widgets import Button as ButtonPT
 from src.reactive import component, Button
 from src.reactive.types import Node
@@ -42,6 +41,3 @@ class TestComponentDecorator(TestCase):
 
             label = expect.find(text).at(row=0)
             label.down().row().find(button_text)
-
-if __name__ == '__main__':
-    main().runTests()

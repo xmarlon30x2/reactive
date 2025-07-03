@@ -1,5 +1,4 @@
 from unittest import TestCase
-from unittest.main import main
 from src.reactive import component, use_reducer, use_key
 from src.reactive.test_utils import mount, Expect
 
@@ -51,6 +50,3 @@ class TestUseReducer(TestCase):
 
         with mount(MyComponent) as harness:
             expect_result(harness.step(expect=True), text='12')
-
-if __name__ == '__main__':
-    main().runTests()

@@ -202,6 +202,3 @@ class TestExpectText(unittest.TestCase):
                 'Expected text to contain "Python"', 
                 str(cm.exception)
             )
-
-if __name__ == '__main__':
-    unittest.main()

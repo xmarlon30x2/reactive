@@ -76,6 +76,3 @@ class TestMount(TestCase):
             harness.step(expect=True, epochs=2).find('hit me!(2)').at(row=0)
 
             harness.step(expect=True).find('hit me!(2)').at(row=0)
-
-if __name__ == '__main__':
-    main().runTests()
