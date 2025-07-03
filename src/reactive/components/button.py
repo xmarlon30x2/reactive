@@ -38,10 +38,8 @@ def get_symbol(
         return default_normal
     if isinstance(disabled, str):
         return disabled
-    if disabled == None:
+    if disabled is None:
         return default_disabled
-    if disabled == False and normal:
-        return normal
     return default_normal
 
 def calculate_width(
