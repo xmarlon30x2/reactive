@@ -2,7 +2,6 @@ from threading import Thread
 from time import sleep
 from typing import Callable
 from unittest import TestCase
-from unittest.main import main
 from src.reactive.hooks.use_state import use_state
 from src.reactive import component, use_effect
 from src.reactive.test_utils import mount
@@ -33,6 +32,3 @@ class TestUseReducer(TestCase):
             count_query().right().text('10')
             sleep(4)
             count_query().right().text('20')
-
-if __name__ == '__main__':
-    main().runTests()
