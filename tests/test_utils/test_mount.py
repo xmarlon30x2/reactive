@@ -4,8 +4,6 @@ from src.reactive import component, use_state, use_key
 from src.reactive.test_utils import mount
 from prompt_toolkit.key_binding.key_bindings import KeyBindings
 from unittest import TestCase
-from unittest.main import main
-
 
 class TestMount(TestCase):
     def test_mount_get_test_should_return_text(self):
