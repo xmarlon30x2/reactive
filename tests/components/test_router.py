@@ -38,3 +38,37 @@ class TestRouter(TestCase):
             query('End', 'To start', 2)
             harness.input.send_text('\r')
             query('Start Page', 'To end', 2)
+
+    def test_should_render_layout(self):
+        
+        @component
+        def Home():
+            return 'home page'
+
+        @component
+        def Layout(children: Callable[[], Node]) -> Node:
+            return [
+                'layout text',
+                children()
+            ]
+
+        views = create_views([
+            {
+                'layout': lambda key, children: Layout(None, key, children=children),
+                'key': 'layout',
+                'views': [
+                    {
+                        'key': 'home',
+                        'component': lambda key: Home(None, key)
+                    }
+                ]
+            }
+        ])
+        
+        @component
+        def MyApp():
+            return Router(views=views, initial_key='home')
+
+        with mount(MyApp) as harness:
+            expect = harness.step(expect=True, epochs=2)
+            expect.find('layout text').at(row=0, column=0).down().text('home page')
