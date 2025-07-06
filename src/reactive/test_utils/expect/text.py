@@ -63,7 +63,8 @@ class ExpectText(StyleBase, DesplaceBase):
     def find(self, query: str) -> 'ExpectText':
         box = find_box(text=self.text, query=query)
         assert box, f'Expected text to contain "{query}", but got "{self.text}"'
-        return ExpectText.from_box(expect=self._expect, box=box)
+        desplace_box = box.desplace(rows=self.point.row, columns=self.point.column)
+        return ExpectText.from_box(expect=self._expect, box=desplace_box)
 
     def contains(self, *texts: str) -> Self:
         """Asegura que el texto contiene todos los textos especificados"""

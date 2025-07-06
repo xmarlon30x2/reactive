@@ -188,7 +188,11 @@ class Box(NamedTuple):
         size = Size(rows=rows, columns=columns)
         point = Point(row=row, column=column)
         return cls(size=size, point=point)
-
+    
+    def desplace(self, rows: int, columns: int):
+        point = Point(self.point.row + rows, self.point.column + columns)
+        return Box(point=point, size=self.size)
+    
     def collide(self, obj: Point) -> bool:
         return self.size.rows > obj.row >= 0 and self.size.columns > obj.column >= 0
 
