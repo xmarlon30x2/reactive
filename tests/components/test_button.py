@@ -17,7 +17,7 @@ class TestButton(TestCase):
     def test_should_styled(self):
 
         with mount(Button) as harness:
-            harness.step(expect=True).find(DEFAULT_TEXT).at(row=0).bgcolor('aa0000').color('ffffff')
+            harness.step(expect=True).find(DEFAULT_TEXT).at(row=0).bgcolor('af0000').color('ffffff')
 
     def test_should_auto_width(self):
         text = 'Lorem ipsum dolor, sit amet consectetur'
