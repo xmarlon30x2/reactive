@@ -186,7 +186,7 @@ class TestExpectText(unittest.TestCase):
 
     def test_find(self):
         with patch(
-            'reactive.test_utils.expect.text.find_box',
+            'reactive.data_structures.Box.desplace',
             return_value=Box(point=Point(0, 0), size=Size(1, 5))
         ) as mock_find_box:
             result = self.text_area.find("Hello")
@@ -197,8 +197,8 @@ class TestExpectText(unittest.TestCase):
             
             mock_find_box.return_value = None
             with self.assertRaises(AssertionError) as cm:
-                self.text_area.find("Python")
+                self.text_area.find("Hola")
             self.assertIn(
-                'Expected text to contain "Python"', 
+                'Expected text to contain "Hola"', 
                 str(cm.exception)
             )
