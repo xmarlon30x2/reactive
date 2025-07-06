@@ -38,7 +38,7 @@ def find_box(text: str | list[str], query: str | list[str]) -> 'Box | None':
     text_lines = text if isinstance(text, list) else text.split('\n')
     text_size = get_size_text(text_lines)
 
-    assert query_size <= text_size
+    assert query_size <= text_size, 'EL texto esperado es mas grande que el texto actual'
 
     for row, text_line in enumerate(text_lines):
         for column in indexs_of(text=text_line, substring=query_lines[0]):
