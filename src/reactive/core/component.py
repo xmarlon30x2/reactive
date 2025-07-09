@@ -19,7 +19,23 @@ __all__ = ['Component', 'transform_node']
 
 
 def transform_node(node: 'Node') -> 'AnyContainer':
-    """Convierte el nodo en contenedor real"""
+    """
+    Convierte nodos de alto nivel en contenedores reales de Prompt Toolkit.
+    
+    Args:
+        node: Elemento a transformar. Puede ser:
+            - None: Se convierte en Label vacío
+            - str: Se convierte en Label
+            - Iterable: Se convierte en HSplit de nodos hijos
+            - Cualquier otro tipo: Se asume que ya es un contenedor válido
+    
+    Returns:
+        Contenedor de Prompt Toolkit listo para renderizar
+        
+    Ejemplo:
+        >>> transform_node("Hola Mundo")
+        Label(text='Hola Mundo')
+    """
     if node is None:
         return Label('')
     
@@ -34,6 +50,25 @@ def transform_node(node: 'Node') -> 'AnyContainer':
 
 @dataclass
 class Component:
+    """
+    Representa un componente en el framework Reactive.
+    
+    Atributos:
+        render (Callable): Función que define la UI del componente
+        props (Props): Propiedades del componente
+        state (State): Estado interno del componente
+        effects (Effects): Gestor de efectos secundarios
+        relations (Relations): Relaciones padre-hijo con otros componentes
+        _dirty (bool): Indica si el componente necesita re-render
+        _container (AnyContainer): Contenedor renderizado actualmente
+        _key_bindings (KeyBindings): Bindings de teclado asociados
+        
+    Métodos clave:
+        render_component: Genera la representación UI actual
+        mount: Registra el componente en el árbol de UI
+        unmount: Elimina el componente del árbol de UI
+        set_dirty: Marca el componente para re-render
+    """
     render: Callable[..., 'AnyContainer']
     props: 'Props'
     state: 'State'
@@ -72,7 +107,25 @@ class Component:
         self._dirty = True
 
     def render_component(self, tree: 'Tree', args: 'Args', kwargs: "Kwargs") -> 'AnyContainer':
-        """Renderiza el componente y sus hijos"""
+        """
+        Renderiza el componente y sus hijos.
+        
+        Args:
+            tree: Árbol de componentes actual
+            args: Argumentos posicionales para el render
+            kwargs: Argumentos clave para el render
+            
+        Returns:
+            Contenedor de Prompt Toolkit actualizado
+            
+        Proceso:
+            1. Actualiza propiedades si cambiaron
+            2. Ejecuta la función render si el componente está "dirty"
+            3. Transforma el nodo resultante en contenedor real
+            4. Gestiona transiciones de UI
+            5. Limpia estados temporales
+            6. Ejecuta efectos post-render
+        """
         self.props.update(args, kwargs)
         if self._container and not self.dirty:
             return self._container
@@ -97,7 +150,18 @@ class Component:
 
             return container
 
-    def mount(self, tree: 'Tree'):
+    def mount(self, tree: 'Tree') -> None:
+        """
+        Monta el componente en el árbol de UI.
+        
+        Args:
+            tree: Árbol donde se montará el componente
+            
+        Proceso:
+            1. Registra el componente en el árbol
+            2. Establece relación con el componente padre
+            3. Monta recursivamente a los hijos
+        """
         tree.reference(self)
         
         parent = self.relations.parent
@@ -108,6 +172,18 @@ class Component:
             children.mount(tree)
 
     def unmount(self, tree: 'Tree'):
+        """
+        Desmonta el componente del árbol de UI.
+        
+        Args:
+            tree: Árbol del que se desmontará
+            
+        Proceso:
+            1. Ejecuta efectos de desmontaje
+            2. Rompe relación con el componente padre
+            3. Desmonta recursivamente a los hijos
+            4. Elimina referencia del árbol
+        """
         self.effects.execute_unmount()
         parent = self.relations.parent
         if parent:

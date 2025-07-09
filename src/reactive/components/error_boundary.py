@@ -1,18 +1,21 @@
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import Callable, TYPE_CHECKING, Optional
 
+from ..hooks.use_id import use_id
 from ..hooks.use_state import use_state
 from ..components.component import component
 
 if TYPE_CHECKING:
-    from prompt_toolkit.layout.containers import AnyContainer
+    from ..types import Node
 
 __all__ = ['ErrorBoundary']
 
 initial_value: Optional[Exception] = None
 
 @component
-def ErrorBoundary(fallback: Callable[[str, Exception], 'AnyContainer'], 
-                 children: Callable[[], 'AnyContainer']) -> 'AnyContainer':
+def ErrorBoundary(
+    fallback: Callable[[str, Exception], 'Node'],
+    children: Callable[[], 'Node']
+) -> 'Node':
     """
     Componente para capturar errores en componentes hijos
     
@@ -20,14 +23,18 @@ def ErrorBoundary(fallback: Callable[[str, Exception], 'AnyContainer'],
         fallback: Función que recibe la excepción y retorna componente alternativo
         children: Funcion de que crea el componente hijo a proteger
     """
-    exception, set_exception = use_state(initial_value=initial_value)
-
-    if not exception:
+    # Estado para almacenar la excepción
+    key = use_id()
+    exception, set_exception = use_state(initial_value)
+    
+    # Si no hay error, intenta renderizar los hijos
+    if exception is None: # type: ignore
         try:
             return children()
+        except Exception as e:
+            # Captura la excepción y actualiza el estado
+            set_exception(e)
+            exception = e
 
-        except Exception as exc:
-            set_exception(exc)
-            exception = exc
-    
-    return fallback('fallback', exception)
+    # Si hay un error almacenado, muestra el fallback
+    return fallback(key, exception)

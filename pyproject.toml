@@ -1,17 +1,42 @@
 [project]
-name = "reactive"
-version = "0.1.0"
-description = "Un react en basado en prompt-toolkit"
+name = "reactive-cli"
+version = "1.0.0"
+description = "Un framework inspirado en React para crear aplicaciones CLI dinámicas. Interfaces terminal con componentes, estado reactivo y hooks."
 readme = "README.md"
 authors = [
-    { name = "xmarlon30x2", email = "xmarlon360x2@gmail.com" }
+    { name = "Marlon Ernesto Acosta Villalón", email = "xmarlon360x2@gmail.com" }
 ]
+license = {file = "LICENSE"}
 requires-python = ">=3.13"
 dependencies = [
     "prompt-toolkit>=3.0.51",
     "pygments>=2.19.1",
+    "pyte>=0.8.2",
 ]
+
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.13",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: User Interfaces",
+    "Environment :: Console",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/xmarlon30x2/reactive"
+Documentation = "https://github.com/xmarlon30x2/reactive#readme"
+Issues = "https://github.com/xmarlon30x2/reactive/issues"
+Source = "https://github.com/xmarlon30x2/reactive"
+Changelog = "https://github.com/xmarlon30x2/reactive/releases"
 
 [build-system]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = [
+    "coverage>=7.9.1",
+]

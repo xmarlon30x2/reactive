@@ -14,15 +14,19 @@ S = TypeVar('S')
 @hook
 def use_state(initial_value: Optional[Union[S, 'Setter[S]']] = None) -> Tuple[S, Callable[[StateSetter[S]], None]]:
     """
-    Hook para gestionar estado local en componentes
+    Gestiona estado local que dispara re-renders al actualizarse.
     
     Args:
-        initial_value: Valor inicial del estado
+        initial_value: Valor inicial o función generadora
         
     Returns:
-        Tuple con:
+        Tupla con:
         - Valor actual del estado
-        - Función para actualizar el estado (acepta valor o función actualizadora)
+        - Función para actualizar el estado
+        
+    Ejemplo:
+        count, set_count = use_state(0)
+        set_count(5)  # Actualiza y causa re-render
     """
     tree = get_tree()
     component = tree.get_current_component()
@@ -31,7 +35,7 @@ def use_state(initial_value: Optional[Union[S, 'Setter[S]']] = None) -> Tuple[S,
     state = component.state.get_slice(
         hook_index,
         default=initial_value if not is_callable else None,
-        default_factory=initial_value if is_callable else None
+        default_factory=initial_value if is_callable else None # type: ignore
     )
     
     def set_state(new_state: Union['Setter[S]', 'Computer[S]', S]) -> None:
@@ -40,7 +44,7 @@ def use_state(initial_value: Optional[Union[S, 'Setter[S]']] = None) -> Tuple[S,
         component.state.set_slice(
             index=hook_index,
             value=new_state if not is_callable else None,
-            value_factory=new_state if is_callable else None
+            value_factory=new_state if is_callable else None # type: ignore
         )
         component.set_dirty()
 

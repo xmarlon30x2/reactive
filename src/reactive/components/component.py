@@ -13,7 +13,7 @@ __all__ = ['component']
 
 def component(func: Callable[P, 'Node']):
     """
-    Decorador que convierte una función en un componente reactivo.
+    Decorador que convierte funciones en componentes reactivos.
     
     Args:
         func: Función que retorna un nodo y puede usar hooks

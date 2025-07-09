@@ -9,22 +9,52 @@ __all__ = ['State']
 
 
 class State:
-    def __init__(self, slices: Optional[list[Any]] = None, index: Optional[int] = None):
-        self._index = index or 0
-        self._slices = slices or []
+    """
+    Gestiona el estado interno de un componente mediante "slices".
+    
+    Cada hook (useState, useEffect, etc) ocupa un slice de estado.
+    
+    Métodos:
+        get_slice(index): Obtiene valor de un slice de estado
+        set_slice(index): Actualiza valor de un slice
+        get_index(): Obtiene el índice del próximo hook
+        active_hook(): Incrementa el contador de hooks
+        cleanup(): Limpia slices no utilizados
+        
+    Comportamiento:
+        - Mantiene un diccionario de slices por índice
+        - Los hooks se registran secuencialmente durante el render
+        - Solo persisten los slices utilizados en el último render
+    """
+    _slices: dict[int, Any]
 
-        self._validate_index(index=self._index)
+    def __init__(self):
+        self._slices = {}
+        self._active_indexs = -1
 
     def get_slice[S](self,
                         index: int,
                         default: Optional[S] = None,
                         default_factory: 'Optional[Setter[S]]' = None
                     ) -> Any:
-        lenght_slices = self._validate_index(index=index)
-
-        if not index < lenght_slices:
+        """
+        Obtiene un slice de estado por su índice.
+        
+        Args:
+            index: Índice del slice
+            default: Valor por defecto si no existe
+            default_factory: Función generadora del valor por defecto
+            
+        Returns:
+            Valor actual del slice
+            
+        Note:
+            Si el slice no existe, lo crea con el valor por defecto
+        """
+        if not index in self._slices:
             new_slice = default_factory() if default_factory else default
-            self._slices.append(new_slice)
+            self._slices[index] = new_slice
+            return new_slice
 
         return self._slices[index]
 
@@ -33,24 +63,51 @@ class State:
                     value: Optional[Any] = None, 
                     value_factory: 'Optional[Union[Setter[Any], Computer[Any]]]' = None
                 ):
-        self._validate_index(index=index)
-        current_slice = self._slices[index]
+        """
+        Actualiza un slice de estado.
+        
+        Args:
+            index: Índice del slice a actualizar
+            value: Nuevo valor directo
+            value_factory: Función generadora del nuevo valor
+            
+        Note:
+            Prefiere value_factory si está presente
+        """
+        current_slice = self._slices.get(index, None)
         self._slices[index] = value if not value_factory else factory_value(current_slice, value_factory)
 
     def get_index(self) -> int:
-        return self._index
+        """
+        Obtiene el índice actual para el próximo hook.
 
-    def increment_index(self) -> None:
-        self._index += 1
+        Returns:
+            Índice numérico que será asignado al próximo hook
+
+        Note:
+            Incrementa automáticamente con cada llamada a active_hook()
+        """
+        return self._active_indexs
+
+    def active_hook(self) -> None:
+        """
+        Incrementa el contador de hooks activos.
+        
+        Note:
+            Se llama automáticamente al usar el decorador @hook
+        """
+        self._active_indexs += 1
 
     def cleanup(self) -> None:
-        if self._index:
-            self._slices = self._slices[:self._index]
-            self._index = 0
-
-    def _validate_index(self, index: int) -> int:
-        lenght_slices = len(self._slices)
-        if index < 0 or index > lenght_slices + 1:
-            raise IndexError(f'Indice fuera de rango: {index}')
-        return lenght_slices
+        """
+        Limpia los slices de estado no utilizados.
+        
+        Process:
+            1. Elimina slices con índice mayor al contador actual
+            2. Reinicia el contador de hooks
+        """
+        for index in list(self._slices.keys()):
+            if not index <= self._active_indexs:
+                self._slices.pop(index)
+        self._active_indexs = -1
 
