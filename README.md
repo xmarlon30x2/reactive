@@ -19,7 +19,7 @@
 ## Instalación 💻
 
 ```bash
-pip install reactive
+pip install reactive-cli
 ```
 
 ## Ejemplo 🧪

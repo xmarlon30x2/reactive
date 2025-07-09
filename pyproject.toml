@@ -1,6 +1,6 @@
 [project]
-name = "reactive"
-version = "0.1.0"
+name = "reactive-cli"
+version = "1.0.0"
 description = "Un framework inspirado en React para crear aplicaciones CLI dinámicas. Interfaces terminal con componentes, estado reactivo y hooks."
 readme = "README.md"
 authors = [
