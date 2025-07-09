@@ -19,7 +19,7 @@
 ## Instalación 💻
 
 ```bash
-pip install reactive-cli
+pip install reactive-toolkit
 ```
 
 ## Ejemplo 🧪
