@@ -50,9 +50,8 @@ class Tree:
     _bases_by_keys: Dict[str, 'Component'] = field(default_factory=dict[str,'Any'], init=False)
     _active_indexs: int = field(default=0, init=False)
     _active_keys: Set[str] = field(default_factory=set[str], init=False)
-    _target_focus: Optional['AnyContainer'] = field(default=None, init=False)
     _key_bindings: Optional['KeyBindingsBase'] = field(default=None, init=False)
-    _focus_task: 'Optional[Task[None]]' = field(default=None, init=False)
+    _focus_manager: '_FocusManager' = field(default_factory=lambda: _FocusManager(), init=False)
 
     @property
     def bases(self) -> Iterable['Component']:
@@ -300,8 +299,7 @@ class Tree:
             Si el foco estaba en 'before', lo moverá a 'after'
             La transición real ocurre durante flip()
         """
-        if not self._target_focus and get_app().layout.has_focus(before):
-            self._target_focus = after
+        self._focus_manager.register_transition(before, after)
 
     def flip(self):
         """
@@ -327,26 +325,8 @@ class Tree:
 
         self._key_bindings = self._merge_key_bildings()
         
-        # if self._target_focus:
-        #     get_app().layout.focus(self._target_focus)
-        
-        # -- Anterior implementacion --
-        if self._target_focus:
-            app = get_app()
-            if self._focus_task:
-                self._focus_task.cancel()
-            
-            self._focus_task = app.create_background_task(
-                self._update_focus(focus=app.layout.focus, target=self._target_focus)
-            )
-
-            self._target_focus = None
-
-    async def _update_focus(self, focus: 'Callable[[AnyContainer], None]', target: 'AnyContainer'):
-        try:
-            focus(target)
-        except ValueError:
-            pass
+        # Manejar transiciones de foco de manera consistente
+        self._focus_manager.apply_focus_transitions()
 
     def _merge_key_bildings(self) -> 'Optional[KeyBindingsBase]':
         list_key_bindings = list(set(
